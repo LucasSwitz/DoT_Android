@@ -63,7 +63,7 @@ public abstract class IoTDeviceController implements IoTSubscriber {
         writeSubscriptionUpdate(e.getKey(), e.getVal());
     }
 
-    private byte[] packet(byte header, byte[] data) {
+    static public byte[] packet(byte header, byte[] data) {
         byte[] out = new byte[data.length + 3];
         out[0] = header;
 

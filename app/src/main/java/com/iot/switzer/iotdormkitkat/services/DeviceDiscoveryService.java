@@ -139,7 +139,7 @@ class HandshakeService implements Runnable, HandshakeListener {
             handshakeThread.start();
 
             try {
-                os.write(IoTBluetoothDeviceController.HANDSHAKE_REQUEST);
+                os.write(IoTDeviceController.HANDSHAKE_REQUEST);
             }catch (IOException e)
             {
                 Log.d("BLUEOOTH",device.getAddress()+": Unabled to write handshake.");
