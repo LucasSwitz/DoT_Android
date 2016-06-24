@@ -1,0 +1,301 @@
+package com.iot.switzer.iotdormkitkat.services;
+
+import android.app.IntentService;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
+import android.os.IBinder;
+import android.util.Log;
+
+import com.iot.switzer.iotdormkitkat.data.IoTManager;
+import com.iot.switzer.iotdormkitkat.devices.IoTBluetoothDeviceController;
+import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Set;
+
+interface HandshakeListener {
+    void onHandshakeData(byte[] data);
+}
+
+/**
+ * Created by Administrator on 6/20/2016.
+ */
+public class DeviceDiscoveryService extends IntentService{
+    private static final int HANDSHAKE_TIMEOUT = 10;
+    public static final String PARAM_IN_MSG = "com.iot.switzer.dormiot.param_n_msg";
+
+    private BluetoothAdapter bthAdapter;
+
+    public DeviceDiscoveryService() {
+        super("Bluetooth Discovery");
+        Log.d("BLUETOOTH","Constructed Service!");
+        bthAdapter = BluetoothAdapter.getDefaultAdapter();
+    }
+
+
+    protected void onHandleIntent(Intent intent) {
+        Log.d("BLUETOOTH","Intent Message: "+intent.getStringExtra(PARAM_IN_MSG));
+        switch(intent.getStringExtra(PARAM_IN_MSG)) {
+            case "START":
+                find();
+                break;
+            case "STOP":
+                stop();
+                break;
+        }
+
+        while(true);
+    }
+    public void find() {
+        Log.d("BLUETOOTH", "Starting find!");
+
+        if(!bthAdapter.isEnabled())
+        {
+            bthAdapter.enable();
+        }
+
+        Set<BluetoothDevice> pairedDevices = bthAdapter.getBondedDevices();
+        if (pairedDevices.size() > 0) {
+            for (BluetoothDevice device : pairedDevices) {
+                Log.d("BLUETOOTH","Bound Device: "+device.getAddress());
+              HandshakeService s = new HandshakeService(device, HANDSHAKE_TIMEOUT);
+                s.run();
+            }
+        }
+    }
+
+    @Override
+    public void onCreate()
+    {
+        super.onCreate();
+        Log.d("BLUETOOTH","On Create!");
+    }
+
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+        Log.d("BLUETOOTH","On Destroy!");
+        //stop();
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
+    private void stop() {
+        if (bthAdapter.isDiscovering()) {
+            bthAdapter.cancelDiscovery();
+        }
+        if (bthAdapter.isEnabled()) {
+            bthAdapter.disable();
+        }
+    }
+}
+
+class HandshakeService implements Runnable, HandshakeListener {
+    private  BluetoothDevice device;
+    private BluetoothSocket socket;
+    int timeout;
+
+    public HandshakeService(BluetoothDevice device, int timeout) {
+        this.timeout = timeout;
+        this.device = device;
+    }
+
+    @Override
+    public void run() {
+        attemptHandshake();
+    }
+
+    private void attemptHandshake() {
+        try {
+            Log.d("BLUETOOTH","Attemping to Handshake: "+device.getAddress());
+            socket = device.createRfcommSocketToServiceRecord(IoTBluetoothDeviceController.DEFAULT_UUID);
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+            try {
+                if(!socket.isConnected())
+                    Log.d("BLUETOOTH",device.getAddress()+"Socket was not connected..connecting...");
+                socket.connect();
+                Log.d("BLUETOOTH",device.getName()+" :Device successfully connected!");
+            }
+            catch (IOException e)
+            {
+                Log.d(device.getAddress(),"Error Connecting!");
+            }
+            OutputStream os = socket.getOutputStream();
+            InputStream is = socket.getInputStream();
+
+            HandshakeServiceReciever handshakeService = new HandshakeServiceReciever(is);
+            handshakeService.addListener(this);
+
+            Thread handshakeThread = new Thread(handshakeService);
+            handshakeThread.start();
+
+            try {
+                os.write(IoTBluetoothDeviceController.HANDSHAKE_REQUEST);
+            }catch (IOException e)
+            {
+                Log.d("BLUEOOTH",device.getAddress()+": Unabled to write handshake.");
+            }
+
+            double start = System.currentTimeMillis();
+            double duration;
+            while(!handshakeService.success())
+            {
+                duration = (System.currentTimeMillis() - start) / 1000;
+
+                if(duration > timeout)
+                {
+                    handshakeThread.interrupt();
+                    break;
+                }
+            }
+            if (!handshakeService.success()) {
+                Log.d("BLUETOOTH", device.getAddress()+" :Device did not handshake in given time");
+                socket.close();
+                handshakeThread.interrupt();
+            }
+            else
+            {
+                Log.d("BLUETOOTH", device.getAddress()+" :Device hand shook!");
+                if(handshakeThread.isAlive())
+                    handshakeThread.interrupt();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onHandshakeData(byte[] data) {
+        IoTDeviceController.DeviceDescription desc = new IoTDeviceController.DeviceDescription();
+        desc.identifer = device.getAddress();
+
+        /**
+            Handshake data indexes:
+            0 - Handshake Header
+            1 - Token
+            2 - HeartbeatInterval
+            3..n-1 = subscription keys*/
+
+        int descIndex = 0;
+        int bufIndex = 0;
+        byte buf[] = new byte[256];
+
+        for (int i = 0; i < data.length; i++) {
+            byte c = data[i];
+            switch (c)
+            {
+                case 10:
+                    break;
+                case 13:
+                    Log.d("DEVICE","Adding Device with token,address: "+desc.token + ','+desc.identifer);
+                    try {
+                        OutputStream os = socket.getOutputStream();
+                        os.write(IoTDeviceController.HANDSHAKE_RETURN);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    IoTManager.getInstance().addDevice(new IoTBluetoothDeviceController(desc,device,socket));
+                    break;
+                case IoTDeviceController.UNI_DELIM:
+                    switch (descIndex) {
+                        case 0:
+                                //we wont save the header
+                            break;
+                        case 1:
+                                String s = "";
+                                for(int k = 0; k < bufIndex;k++)
+                                {
+                                    s+=(char)buf[k];
+                                }
+                                desc.token = s;
+                            break;
+                        case 2:
+                            desc.heartbeatInterval = buf[0] << 24 | buf[1] << 16 | buf[2] << 8 | buf[3];
+                            break;
+                        case 3:
+                        default:
+                            s = "";
+                            for(int k = 0; k < bufIndex;k++)
+                            {
+                                s+=(char)buf[k];
+                            }
+                                desc.subscriptions.add(s);
+                    }
+                    bufIndex = 0;
+                    descIndex++;
+                    break;
+                default:
+                    buf[bufIndex] = c;
+                    bufIndex++;
+            }
+        }
+    }
+
+    class HandshakeServiceReciever implements Runnable {
+        private InputStream is;
+        private HandshakeListener listener;
+        boolean hasHeader = false;
+        boolean hasTail = false;
+        byte packet[];
+        int packetSize = 0;
+
+        HandshakeServiceReciever(InputStream is) {
+            this.is = new BufferedInputStream(is);
+            packet = new byte[256];
+        }
+
+        void addListener(HandshakeListener listener) {
+            this.listener = listener;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+                byte[] in = new byte[512];
+                int numOfBytes = 0;
+                try {
+                    numOfBytes = is.read(in);
+                    String test = "";
+                    for (int i = 0; i < numOfBytes; i++) {
+                        packet[packetSize] = in[i];
+                        packetSize++;
+                    }
+                    for(int i =0; i < packetSize; i++)
+                    {
+                        test+=(char)packet[i];
+                    }
+                    Log.d("PACKET","Packet: "+test);
+
+                    if (in[0] == IoTDeviceController.HANDSHAKE_RETURN) {
+                        hasHeader = true;
+                    }
+                    if (in[numOfBytes - 1] != (char) 13) {
+                        run();
+                    } else {
+                        hasTail = true;
+                        listener.onHandshakeData(packet);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+            }
+        }
+
+        public boolean success()
+        {
+            return hasHeader && hasTail;
+        }
+    }
+}
