@@ -4,7 +4,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-import com.iot.switzer.iotdormkitkat.data.IoTEntry;
+import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
+import com.iot.switzer.iotdormkitkat.data.SubscritptionDescription;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,7 +66,7 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
     }
 
     @Override
-    public void onSubscriptionUpdate(IoTEntry entry) {
+    public void onSubscriptionUpdate(IoTSubscriptionEntry entry) {
         try {
             writeSubscriptionUpdate(entry);
         } catch (IOException e) {
@@ -74,8 +75,8 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
     }
 
     @Override
-    public List<String> getSubscritpions() {
-        return getDeviceDescription().subscriptions;
+    public List<SubscritptionDescription> getSubscriptions() {
+        return getDeviceDescription().subscriptionDescriptions;
     }
 
     @Override
@@ -95,7 +96,7 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
                 break;
         }
     }
-    IoTEntry parseSubscriptionUpdate(byte[] data) {
+    IoTSubscriptionEntry parseSubscriptionUpdate(byte[] data) {
         String key = "";
         byte val[] = null;
         byte buf[] = new byte[256];
@@ -140,7 +141,7 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
             if ((char) c == (char) 10)
                 break;
         }
-        return (new IoTEntry(key, val));
+        return (new IoTSubscriptionEntry(key, val));
     }
 }
 

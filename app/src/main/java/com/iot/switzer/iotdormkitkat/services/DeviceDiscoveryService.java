@@ -8,7 +8,8 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.iot.switzer.iotdormkitkat.data.IoTManager;
+import com.iot.switzer.iotdormkitkat.devices.IoTManager;
+import com.iot.switzer.iotdormkitkat.data.SubscritptionDescription;
 import com.iot.switzer.iotdormkitkat.devices.IoTBluetoothDeviceController;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 
@@ -16,6 +17,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Set;
 
 interface HandshakeListener {
@@ -209,6 +211,8 @@ class HandshakeService implements Runnable, HandshakeListener {
         int descIndex = 0;
         int bufIndex = 0;
         byte buf[] = new byte[256];
+        String s = "";
+        ArrayList<SubscritptionDescription> subscritptionDescriptions = new ArrayList<>();
 
         for (int i = 0; i < data.length; i++) {
             byte c = data[i];
@@ -232,7 +236,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                                 //we wont save the header
                             break;
                         case 1:
-                                String s = "";
+                                s = "";
                                 for(int k = 0; k < bufIndex;k++)
                                 {
                                     s+=(char)buf[k];
@@ -244,12 +248,18 @@ class HandshakeService implements Runnable, HandshakeListener {
                             break;
                         case 3:
                         default:
-                            s = "";
-                            for(int k = 0; k < bufIndex;k++)
+                            if(descIndex%2 == 0)
                             {
-                                s+=(char)buf[k];
+                                desc.subscriptionDescriptions.add(new SubscritptionDescription(s, SubscritptionDescription.SubscriptionType.fromInt(buf[0])));
                             }
-                                desc.subscriptions.add(s);
+                            else
+                            {
+                                s = "";
+                                for(int k = 0; k < bufIndex;k++)
+                                {
+                                    s+=(char)buf[k];
+                                }
+                            }
                     }
                     bufIndex = 0;
                     descIndex++;
@@ -310,7 +320,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                         listener.onHandshakeData(packet);
                     }
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.d("DISCOVERY","Failure Connecting to: "+device.getAddress());
             }
         }
 

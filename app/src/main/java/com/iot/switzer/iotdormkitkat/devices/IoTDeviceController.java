@@ -1,6 +1,7 @@
 package com.iot.switzer.iotdormkitkat.devices;
 
-import com.iot.switzer.iotdormkitkat.data.IoTEntry;
+import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
+import com.iot.switzer.iotdormkitkat.data.SubscritptionDescription;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public abstract class IoTDeviceController implements IoTSubscriber {
     private ArrayList<IoTDeviceListener> listeners;
     private DeviceDescription description;
 
-    public IoTDeviceController(String identifer, String token, int heartbeatInterval, List<String> subscriptions) {
+    public IoTDeviceController(String identifer, String token, int heartbeatInterval, List<SubscritptionDescription> subscriptions) {
         this(new DeviceDescription(identifer, token,heartbeatInterval,subscriptions));
     }
 
@@ -59,7 +60,7 @@ public abstract class IoTDeviceController implements IoTSubscriber {
         write(packet(SUBSCRIPTION_UPDATE, out));
     }
 
-    protected void writeSubscriptionUpdate(IoTEntry e) throws IOException {
+    protected void writeSubscriptionUpdate(IoTSubscriptionEntry e) throws IOException {
         writeSubscriptionUpdate(e.getKey(), e.getVal());
     }
 
@@ -90,7 +91,7 @@ public abstract class IoTDeviceController implements IoTSubscriber {
     public abstract void write(byte[] out) throws IOException;
 
 
-    public void signalSubscriptionChange(IoTEntry entry)
+    public void signalSubscriptionChange(IoTSubscriptionEntry entry)
     {
         for(IoTDeviceListener listener : listeners)
         {
@@ -102,18 +103,20 @@ public abstract class IoTDeviceController implements IoTSubscriber {
         public String identifer;
         public String token;
         public int heartbeatInterval;
-        public ArrayList<String> subscriptions;
+        public ArrayList<SubscritptionDescription> subscriptionDescriptions;
 
         public DeviceDescription()
         {
-            subscriptions = new ArrayList<>();
+            subscriptionDescriptions = new ArrayList<>();
         }
-        public DeviceDescription(String identifer, String token, int heartbeatInterval, List<String> subscriptions)
+        public DeviceDescription(String identifer, String token, int heartbeatInterval, List<SubscritptionDescription> subscriptionDescriptions)
         {
+            this();
             this.identifer = identifer;
             this.token = token;
             this.heartbeatInterval = heartbeatInterval;
-            this.subscriptions = (ArrayList<String>) subscriptions;
+            this.subscriptionDescriptions = (ArrayList<SubscritptionDescription>) subscriptionDescriptions;
+
         }
     }
 }
