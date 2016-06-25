@@ -1,6 +1,6 @@
 package com.iot.switzer.iotdormkitkat.services;
 
-import android.app.IntentService;
+import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.iot.switzer.iotdormkitkat.data.IoTManager;
 import com.iot.switzer.iotdormkitkat.devices.IoTBluetoothDeviceController;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 
@@ -25,46 +24,47 @@ interface HandshakeListener {
 /**
  * Created by Administrator on 6/20/2016.
  */
-public class DeviceDiscoveryService extends IntentService{
+public class DeviceDiscoveryService extends Service implements Runnable{
     private static final int HANDSHAKE_TIMEOUT = 10;
     public static final String PARAM_IN_MSG = "com.iot.switzer.dormiot.param_n_msg";
+    private boolean finding = false;
 
     private BluetoothAdapter bthAdapter;
 
     public DeviceDiscoveryService() {
-        super("Bluetooth Discovery");
         Log.d("BLUETOOTH","Constructed Service!");
         bthAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if(bthAdapter !=null)
+            Log.d("BLUETOOTH","Adapter is alive");
+        else
+            Log.d("BLUETOOTH","Adapter is nonexistent");
     }
 
-
-    protected void onHandleIntent(Intent intent) {
-        Log.d("BLUETOOTH","Intent Message: "+intent.getStringExtra(PARAM_IN_MSG));
-        switch(intent.getStringExtra(PARAM_IN_MSG)) {
-            case "START":
-                find();
-                break;
-            case "STOP":
-                stop();
-                break;
-        }
-
-        while(true);
-    }
     public void find() {
-        Log.d("BLUETOOTH", "Starting find!");
+        while(finding) {
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        if(!bthAdapter.isEnabled())
-        {
-            bthAdapter.enable();
-        }
-
-        Set<BluetoothDevice> pairedDevices = bthAdapter.getBondedDevices();
-        if (pairedDevices.size() > 0) {
-            for (BluetoothDevice device : pairedDevices) {
-                Log.d("BLUETOOTH","Bound Device: "+device.getAddress());
-              HandshakeService s = new HandshakeService(device, HANDSHAKE_TIMEOUT);
-                s.run();
+            Set<BluetoothDevice> pairedDevices = bthAdapter.getBondedDevices();
+            if (pairedDevices.size() > 0) {
+                for (BluetoothDevice device : pairedDevices) {
+                    boolean match = false;
+                    for (IoTDeviceController controller : IoTNetworkManager.getInstance().getLiveDevices().values()) {
+                        match = controller.getDeviceDescription().identifer.equals(device.getAddress());
+                        if (match) {
+                            break;
+                        }
+                    }
+                    if (!match) {
+                        Log.d(device.getAddress(), "New Device: " + device.getAddress());
+                        HandshakeService s = new HandshakeService(device, HANDSHAKE_TIMEOUT);
+                        s.run();
+                    }
+                }
             }
         }
     }
@@ -79,9 +79,9 @@ public class DeviceDiscoveryService extends IntentService{
     @Override
     public void onDestroy()
     {
+        Log.d("DISCOVERY","On Destroy!");
         super.onDestroy();
-        Log.d("BLUETOOTH","On Destroy!");
-        //stop();
+        stop();
     }
 
     @Override
@@ -89,14 +89,34 @@ public class DeviceDiscoveryService extends IntentService{
         return null;
     }
 
-    private void stop() {
-        if (bthAdapter.isDiscovering()) {
-            bthAdapter.cancelDiscovery();
-        }
-        if (bthAdapter.isEnabled()) {
-            bthAdapter.disable();
-        }
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId)
+    {
+        Log.d("DISCOVERY","On Start Command.");
+        new Thread(this).start();
+        return START_STICKY;
     }
+
+    private void stop() {
+        finding = false;
+    }
+
+    @Override
+    public void run()
+    {
+        Log.d("BLUETOOTH", "Starting find!");
+        finding = true;
+        if (!bthAdapter.isEnabled()) {
+            bthAdapter.enable();
+        }
+
+        if(bthAdapter.isEnabled())
+        {
+            Log.d("BLUETOOTH","Adapter is enabled!");
+        }
+        find();
+    }
+
 }
 
 class HandshakeService implements Runnable, HandshakeListener {
@@ -203,7 +223,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    IoTManager.getInstance().addDevice(new IoTBluetoothDeviceController(desc,device,socket));
+                    IoTNetworkManager.getInstance().addDevice(new IoTBluetoothDeviceController(desc,device,socket));
                     break;
                 case IoTDeviceController.UNI_DELIM:
                     switch (descIndex) {
