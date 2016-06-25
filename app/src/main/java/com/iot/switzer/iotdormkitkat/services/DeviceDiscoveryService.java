@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.iot.switzer.iotdormkitkat.data.IoTManager;
 import com.iot.switzer.iotdormkitkat.devices.IoTBluetoothDeviceController;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 
@@ -53,7 +54,7 @@ public class DeviceDiscoveryService extends Service implements Runnable{
             if (pairedDevices.size() > 0) {
                 for (BluetoothDevice device : pairedDevices) {
                     boolean match = false;
-                    for (IoTDeviceController controller : IoTNetworkManager.getInstance().getLiveDevices().values()) {
+                    for (IoTDeviceController controller : IoTManager.getInstance().getLiveDevices()) {
                         match = controller.getDeviceDescription().identifer.equals(device.getAddress());
                         if (match) {
                             break;
@@ -223,7 +224,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    IoTNetworkManager.getInstance().addDevice(new IoTBluetoothDeviceController(desc,device,socket));
+                    IoTManager.getInstance().addDevice(new IoTBluetoothDeviceController(desc,device,socket));
                     break;
                 case IoTDeviceController.UNI_DELIM:
                     switch (descIndex) {

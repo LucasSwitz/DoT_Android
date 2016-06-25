@@ -4,6 +4,7 @@ import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceListener;
 import com.iot.switzer.iotdormkitkat.devices.IoTSubscriber;
 
+import java.util.Collection;
 import java.util.HashMap;
 
 /**
@@ -28,6 +29,11 @@ public class IoTManager implements IoTDeviceListener {
         devices.put(device.getToken(), device);
         device.addListener(this);
         IoTVariablesBase.getInstance().addSubscriber(device);
+    }
+
+    public Collection<IoTDeviceController> getLiveDevices()
+    {
+        return devices.values();
     }
 
     @Override
