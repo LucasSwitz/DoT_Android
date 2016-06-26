@@ -74,8 +74,18 @@ public class IoTSubscriptionEntry {
             case STRING:
                 return getValAsString();
             default:
-                return val;
+                return rawBytePtrToString(val);
         }
+    }
+
+    public static String rawBytePtrToString(byte[] ptr)
+    {
+        String s = "";
+        for(byte n : ptr)
+        {
+            s+=String.valueOf(n);
+        }
+        return s;
     }
 
     public final SubscriptionDescription getDescription()

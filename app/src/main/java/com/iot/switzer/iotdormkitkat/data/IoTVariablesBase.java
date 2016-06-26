@@ -5,6 +5,7 @@ import android.util.Log;
 import com.iot.switzer.iotdormkitkat.devices.IoTSubscriber;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -42,17 +43,36 @@ public class IoTVariablesBase extends IoTTableModel {
 
     public void update(IoTSubscriptionEntry entry) {
 
-        /*Once a value is added,TYPE cannot change*/
         if (get(entry.getKey()) == null)
             addEntry(entry);
         else
-            updateEntryValue(entry.getKey(), entry.getVal());
+            updateEntry(entry);
     }
 
-    public void updateEntryValue(String key, byte[] value) {
-        Log.d("DATABASE", "Entry updated: " + key + "," + value);
+    public void updateEntry(IoTSubscriptionEntry entry) {
+        IoTSubscriptionEntry e = get(entry.getKey());
+        Log.d("DATABASE", "Entry updated: " + e.getKey() + "," + e.getVal());
+
+        if(!(Arrays.equals(e.getVal(),entry.getVal()))) {
+            updateEntryValue(entry.getKey(),entry.getVal());
+        }
+
+        /**
+         * If the entry's type changes from the default type (BYTE_PTR) update it.
+         */
+        updateSubscribers(entry.getKey());
+    }
+
+    protected void updateEntryValue(String key, byte[] value)
+    {
+        Log.d("DATABASE","Updated entry value: "+key);
         get(key).setVal(value);
-        updateSubscribers(key);
+    }
+
+    protected void updateEntryType(String key, SubscriptionDescription.SubscriptionType t)
+    {
+        Log.d("DATABASE","Updated entry type: "+key);
+        get(key).getDescription().type = t;
     }
 
     private void addEntry(IoTSubscriptionEntry entry) {
@@ -88,6 +108,10 @@ public class IoTVariablesBase extends IoTTableModel {
         }
         else {
             for (SubscriptionDescription d : subscriber.getSubscriptions()) {
+
+                /**
+                 * If subscription doesn't exist init its index
+                 * */
                 if (subscriptions.get(d.key) == null) {
                     subscriptions.put(d.key, new ArrayList<IoTSubscriber>());
                 }
@@ -95,12 +119,23 @@ public class IoTVariablesBase extends IoTTableModel {
                 Log.d("DATABASE", "Adding subscriber to: " + d.key);
                 subscriptions.get(d.key).add(subscriber);
 
-
                 /**
                  *  If subscription entry does not exists yet, add it with default value.
                  */
                 if (get(d.key) == null) {
                     update(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
+                }
+                else
+                {
+                    /**
+                     * If a subscriber further describes and entry type past the default
+                     * (BYTE_PTR), update the entry.
+                     */
+                    if((get(d.key).getDescription().type  == SubscriptionDescription.SubscriptionType.BYTE_PTR) &&
+                            d.type != SubscriptionDescription.SubscriptionType.BYTE_PTR)
+                    {
+                        updateEntryType(d.key,d.type);
+                    }
                 }
 
                 /**

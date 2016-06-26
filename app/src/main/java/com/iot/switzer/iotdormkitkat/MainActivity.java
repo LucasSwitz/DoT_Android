@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (inputMessage.what)
                 {
                     case EntryUITable.UPDATE_ROW:
-                        updateTohandle.table.updateRow(updateTohandle.entry.getKey(),String.valueOf((int)updateTohandle.entry.getValAsInt()));
+                        updateTohandle.table.updateRow(updateTohandle.entry.getKey(),String.valueOf(updateTohandle.entry.getValueAsType()));
                         break;
 
                     case EntryUITable.ADD_ROW:

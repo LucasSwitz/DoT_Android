@@ -65,7 +65,7 @@ public class DeviceDiscoveryService extends Service implements Runnable{
                     if (!match) {
                         Log.d(device.getAddress(), "New Device: " + device.getAddress());
                         HandshakeService s = new HandshakeService(device, HANDSHAKE_TIMEOUT);
-                        s.run();
+                        new Thread(s).start();
                     }
                 }
             }
