@@ -47,18 +47,18 @@ public class IoTVariablesBase extends IoTTableModel {
             addEntry(entry);
         else
             updateEntryValue(entry.getKey(), entry.getVal());
-
-        updateSubscribers(entry.getKey());
     }
 
     public void updateEntryValue(String key, byte[] value) {
         Log.d("DATABASE", "Entry updated: " + key + "," + value);
         get(key).setVal(value);
+        updateSubscribers(key);
     }
 
     private void addEntry(IoTSubscriptionEntry entry) {
         Log.d("DATABASE", "Entry Added: " + entry.getKey() + "," + entry.getVal() + "," + entry.getDescription().type.name());
         put(entry.getKey(), entry);
+        updateSubscribers(entry.getKey());
     }
 
     public IoTSubscriptionEntry get(String key) {
@@ -82,21 +82,31 @@ public class IoTVariablesBase extends IoTTableModel {
          * Insert subscriber into the map that contains all of the subscriptions
          * and their subscribers.
          */
-        for (SubscritptionDescription d: subscriber.getSubscriptions()) {
-            if(subscriptions.get(d.key) == null)
-            {
-                subscriptions.put(d.key, new ArrayList<IoTSubscriber>());
-            }
+        if(subscriber.getSubscriptions().get(0).type == SubscriptionDescription.SubscriptionType.UNIVERSAL)
+        {
+            addUniversalSubscriber(subscriber);
+        }
+        else {
+            for (SubscriptionDescription d : subscriber.getSubscriptions()) {
+                if (subscriptions.get(d.key) == null) {
+                    subscriptions.put(d.key, new ArrayList<IoTSubscriber>());
+                }
 
-            Log.d("DATABASE","Adding subscriber to: "+d.key);
+                Log.d("DATABASE", "Adding subscriber to: " + d.key);
                 subscriptions.get(d.key).add(subscriber);
 
-            /**
-             *  If subscription entry does not exists yet, add it with default value.
-             */
-            if(get(d.key) == null)
-            {
-                update(new IoTSubscriptionEntry(d,new byte[]{DEFAULT_VALUE}));
+
+                /**
+                 *  If subscription entry does not exists yet, add it with default value.
+                 */
+                if (get(d.key) == null) {
+                    update(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
+                }
+
+                /**
+                 * Update the subscriber with the current value of the entry
+                 * */
+                subscriber.onSubscriptionUpdate(get(d.key));
             }
         }
     }
@@ -113,6 +123,14 @@ public class IoTVariablesBase extends IoTTableModel {
     {
         Log.d("DATABASE","Added universal subscriber.");
         universal_subscribers.add(subscriber);
+
+        /**
+         * Update universal subscriber with all the current entry values
+         * */
+        for(IoTSubscriptionEntry e: values())
+        {
+            subscriber.onSubscriptionUpdate(e);
+        }
     }
 
     protected void updateSubscribers(String key) {
@@ -152,8 +170,8 @@ class InterruptManager extends HashMap<String,InterruptTicket> implements IoTSub
     }
 
     @Override
-    public List<SubscritptionDescription> getSubscriptions() {
-        return new ArrayList<SubscritptionDescription>(){};
+    public List<SubscriptionDescription> getSubscriptions() {
+        return new ArrayList<SubscriptionDescription>(){};
     }
 
     @Override

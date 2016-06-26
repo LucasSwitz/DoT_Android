@@ -3,13 +3,14 @@ package com.iot.switzer.iotdormkitkat.data;
 /**
  * Created by Lucas Switzer on 6/25/2016.
  */
-public class SubscritptionDescription
+public class SubscriptionDescription
 {
     public enum SubscriptionType {
         INT,
         CHAR,
         STRING,
-        BYTE_PTR;
+        BYTE_PTR,
+        UNIVERSAL;
 
         public static SubscriptionType fromInt(int i)
         {
@@ -26,7 +27,7 @@ public class SubscritptionDescription
             }
         }
     }
-    public SubscritptionDescription(String key, SubscriptionType type)
+    public SubscriptionDescription(String key, SubscriptionType type)
     {
         this.type = type;
         this.key = key;

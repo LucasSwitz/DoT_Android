@@ -1,7 +1,7 @@
 package com.iot.switzer.iotdormkitkat.devices;
 
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.SubscritptionDescription;
+import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 
 import java.util.List;
 
@@ -13,5 +13,5 @@ import java.util.List;
 public interface IoTSubscriber {
     void onSubscriptionUpdate(IoTSubscriptionEntry entry);
 
-    List<SubscritptionDescription> getSubscriptions();
+    List<SubscriptionDescription> getSubscriptions();
 }

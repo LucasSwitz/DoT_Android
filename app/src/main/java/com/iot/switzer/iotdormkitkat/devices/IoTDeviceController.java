@@ -1,7 +1,7 @@
 package com.iot.switzer.iotdormkitkat.devices;
 
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.SubscritptionDescription;
+import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -27,7 +27,7 @@ public abstract class IoTDeviceController implements IoTSubscriber {
     private ArrayList<IoTDeviceListener> listeners;
     private DeviceDescription description;
 
-    public IoTDeviceController(String identifer, String token, int heartbeatInterval, List<SubscritptionDescription> subscriptions) {
+    public IoTDeviceController(String identifer, String token, int heartbeatInterval, List<SubscriptionDescription> subscriptions) {
         this(new DeviceDescription(identifer, token,heartbeatInterval,subscriptions));
     }
 
@@ -99,23 +99,29 @@ public abstract class IoTDeviceController implements IoTSubscriber {
         }
     }
 
+    protected abstract void stopDevice();
+    public void stop()
+    {
+        stopDevice();
+    }
+
     public static class DeviceDescription {
         public String identifer;
         public String token;
         public int heartbeatInterval;
-        public ArrayList<SubscritptionDescription> subscriptionDescriptions;
+        public ArrayList<SubscriptionDescription> subscriptionDescriptions;
 
         public DeviceDescription()
         {
             subscriptionDescriptions = new ArrayList<>();
         }
-        public DeviceDescription(String identifer, String token, int heartbeatInterval, List<SubscritptionDescription> subscriptionDescriptions)
+        public DeviceDescription(String identifer, String token, int heartbeatInterval, List<SubscriptionDescription> subscriptionDescriptions)
         {
             this();
             this.identifer = identifer;
             this.token = token;
             this.heartbeatInterval = heartbeatInterval;
-            this.subscriptionDescriptions = (ArrayList<SubscritptionDescription>) subscriptionDescriptions;
+            this.subscriptionDescriptions = (ArrayList<SubscriptionDescription>) subscriptionDescriptions;
 
         }
     }

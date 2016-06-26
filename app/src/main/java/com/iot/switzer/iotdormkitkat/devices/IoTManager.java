@@ -35,6 +35,15 @@ public class IoTManager implements IoTDeviceListener {
         return devices.values();
     }
 
+
+    public void destroy()
+    {
+        for(IoTDeviceController deviceController : devices.values())
+        {
+            deviceController.stop();
+        }
+    }
+
     @Override
     public void onVariablesUpdate(IoTSubscriptionEntry entry) {
         IoTVariablesBase.getInstance().update(entry);

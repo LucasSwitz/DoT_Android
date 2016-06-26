@@ -5,7 +5,7 @@ import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.SubscritptionDescription;
+import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,6 +58,16 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
             os.write(out);
     }
 
+    @Override
+    protected void stopDevice() {
+        try {
+            reader.stopRead();
+            os.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
 
     public boolean isReady()
@@ -75,7 +85,7 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
     }
 
     @Override
-    public List<SubscritptionDescription> getSubscriptions() {
+    public List<SubscriptionDescription> getSubscriptions() {
         return getDeviceDescription().subscriptionDescriptions;
     }
 
@@ -155,6 +165,7 @@ class AsyncBluetoothReader implements Runnable
     InputStream is;
     byte packet[];
     int packetSize = 0;
+    boolean reading = true;
     AsyncBluetoothReaderListener listener;
 
     public AsyncBluetoothReader(InputStream is)
@@ -168,42 +179,46 @@ class AsyncBluetoothReader implements Runnable
         this.listener = listener;
     }
 
+    public void stopRead()
+    {
+        reading = false;
+    }
+
     @Override
     public void run() {
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Log.d("DEVICE","Started Listen...");
-        byte[] in = new byte[512];
-        int numOfBytes = 0;
-        try {
-            numOfBytes =  is.read(in);
+        if (reading) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            Log.d("DEVICE", "Started Listen...");
+            byte[] in = new byte[512];
+            int numOfBytes = 0;
+            try {
+                numOfBytes = is.read(in);
 
-            for(int i =0; i < numOfBytes; i++)
-            {
-                packet[packetSize] = in[i];
-                packetSize++;
-            }
-            String s = "";
-            for(int i =0; i < packetSize; i++)
-            {
-                s+=(char)packet[i];
-            }
-            Log.d("PACKET",s);
-            if(in[numOfBytes-1] == (char)13)
-            {
-                Log.d("PACKET","Sending packet to be parsed..");
-                listener.onPacket(packet);
-                packet = new byte[256];
-                packetSize = 0;
+                for (int i = 0; i < numOfBytes; i++) {
+                    packet[packetSize] = in[i];
+                    packetSize++;
+                }
+                String s = "";
+                for (int i = 0; i < packetSize; i++) {
+                    s += (char) packet[i];
+                }
+                Log.d("PACKET", s);
+                if (in[numOfBytes - 1] == (char) 13) {
+                    Log.d("PACKET", "Sending packet to be parsed..");
+                    listener.onPacket(packet);
+                    packet = new byte[256];
+                    packetSize = 0;
 
+                }
+                run();
+            } catch (IOException e) {
+                Log.d("BAD", "Something has gone horribly wrong..");
+                e.printStackTrace();
             }
-            run();
-        } catch (IOException e) {
-            Log.d("BAD","Something has gone horribly wrong..");
-            e.printStackTrace();
         }
     }
 }

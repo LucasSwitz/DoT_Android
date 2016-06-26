@@ -9,7 +9,7 @@ import android.os.IBinder;
 import android.util.Log;
 
 import com.iot.switzer.iotdormkitkat.devices.IoTManager;
-import com.iot.switzer.iotdormkitkat.data.SubscritptionDescription;
+import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.devices.IoTBluetoothDeviceController;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 
@@ -212,7 +212,7 @@ class HandshakeService implements Runnable, HandshakeListener {
         int bufIndex = 0;
         byte buf[] = new byte[256];
         String s = "";
-        ArrayList<SubscritptionDescription> subscritptionDescriptions = new ArrayList<>();
+        ArrayList<SubscriptionDescription> subscritptionDescriptions = new ArrayList<>();
 
         for (int i = 0; i < data.length; i++) {
             byte c = data[i];
@@ -250,7 +250,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                         default:
                             if(descIndex%2 == 0)
                             {
-                                desc.subscriptionDescriptions.add(new SubscritptionDescription(s, SubscritptionDescription.SubscriptionType.fromInt(buf[0])));
+                                desc.subscriptionDescriptions.add(new SubscriptionDescription(s, SubscriptionDescription.SubscriptionType.fromInt(buf[0])));
                             }
                             else
                             {
