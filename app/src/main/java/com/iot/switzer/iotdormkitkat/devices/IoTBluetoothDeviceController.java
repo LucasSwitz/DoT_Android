@@ -78,7 +78,7 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
     @Override
     public void onSubscriptionUpdate(IoTSubscriptionEntry entry) {
         try {
-            writeSubscriptionUpdate(entry);
+            writeSubscriptionUpdateToDevice(entry);
         } catch (IOException e) {
             e.printStackTrace();
         }

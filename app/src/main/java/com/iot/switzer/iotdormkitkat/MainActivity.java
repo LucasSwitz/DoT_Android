@@ -9,11 +9,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.ViewGroup;
 
-import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.IoTVariablesBase;
-import com.iot.switzer.iotdormkitkat.devices.IoTManager;
+import com.iot.switzer.iotdormkitkat.network.IoTManager;
 import com.iot.switzer.iotdormkitkat.services.DeviceDiscoveryService;
-import com.iot.switzer.iotdormkitkat.ui.EntryRow;
 import com.iot.switzer.iotdormkitkat.ui.EntryUITable;
 import com.iot.switzer.iotdormkitkat.ui.TableRowUpdate;
 
@@ -64,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        IoTVariablesBase.getInstance().addSubscriber(table);
+        IoTVariablesBase.getInstance().addObserver(table);
         layout.addView(table);
 
         Intent msgIntent = new Intent(this, DeviceDiscoveryService.class);

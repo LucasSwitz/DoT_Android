@@ -1,4 +1,4 @@
-package com.iot.switzer.iotdormkitkat.devices;
+package com.iot.switzer.iotdormkitkat.data;
 
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;

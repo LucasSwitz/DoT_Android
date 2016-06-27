@@ -2,8 +2,6 @@ package com.iot.switzer.iotdormkitkat.data;
 
 import android.util.Log;
 
-import com.iot.switzer.iotdormkitkat.devices.IoTSubscriber;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -16,13 +14,13 @@ public class IoTVariablesBase extends IoTTableModel {
     static private IoTVariablesBase instance;
     public static final byte DEFAULT_VALUE = 0;
     private HashMap<String, ArrayList<IoTSubscriber>> subscriptions;
-    private ArrayList<IoTSubscriber> universal_subscribers;
+    private ArrayList<IoTObserver> observers;
     private InterruptManager interruptManager;
 
     private IoTVariablesBase() {
 
         subscriptions = new HashMap<>();
-        universal_subscribers = new ArrayList<>();
+        observers = new ArrayList<>();
         interruptManager = new InterruptManager();
     }
 
@@ -60,7 +58,7 @@ public class IoTVariablesBase extends IoTTableModel {
         /**
          * If the entry's type changes from the default type (BYTE_PTR) update it.
          */
-        updateSubscribers(entry.getKey());
+        updateAll(entry.getKey());
     }
 
     protected void updateEntryValue(String key, byte[] value)
@@ -78,7 +76,7 @@ public class IoTVariablesBase extends IoTTableModel {
     private void addEntry(IoTSubscriptionEntry entry) {
         Log.d("DATABASE", "Entry Added: " + entry.getKey() + "," + entry.getVal() + "," + entry.getDescription().type.name());
         put(entry.getKey(), entry);
-        updateSubscribers(entry.getKey());
+        updateAll(entry.getKey());
     }
 
     public IoTSubscriptionEntry get(String key) {
@@ -98,16 +96,7 @@ public class IoTVariablesBase extends IoTTableModel {
 
     public void addSubscriber(IoTSubscriber subscriber) {
 
-        /**
-         * Insert subscriber into the map that contains all of the subscriptions
-         * and their subscribers.
-         */
-        if(subscriber.getSubscriptions().get(0).type == SubscriptionDescription.SubscriptionType.UNIVERSAL)
-        {
-            addUniversalSubscriber(subscriber);
-        }
-        else {
-            for (SubscriptionDescription d : subscriber.getSubscriptions()) {
+         for (SubscriptionDescription d : subscriber.getSubscriptions()) {
 
                 /**
                  * If subscription doesn't exist init its index
@@ -143,7 +132,6 @@ public class IoTVariablesBase extends IoTTableModel {
                  * */
                 subscriber.onSubscriptionUpdate(get(d.key));
             }
-        }
     }
 
     public void updateSubscription(String key,IoTSubscriber s)
@@ -154,24 +142,24 @@ public class IoTVariablesBase extends IoTTableModel {
         }
     }
 
-    public void addUniversalSubscriber(IoTSubscriber subscriber)
+    public void addObserver(IoTObserver observer)
     {
-        Log.d("DATABASE","Added universal subscriber.");
-        universal_subscribers.add(subscriber);
+        Log.d("DATABASE","Added Observer.");
+        observers.add(observer);
 
         /**
-         * Update universal subscriber with all the current entry values
+         * Update observers with all the current entry values
          * */
         for(IoTSubscriptionEntry e: values())
         {
-            subscriber.onSubscriptionUpdate(e);
+            observer.onSubscriptionUpdate(e);
         }
     }
 
-    protected void updateSubscribers(String key) {
+    protected void updateAll(String key) {
 
         updateRegularSubscribers(key);
-        updateUniversalSubscribers(key);
+        updateObservers(key);
     }
 
     private void updateRegularSubscribers(String key)
@@ -181,9 +169,9 @@ public class IoTVariablesBase extends IoTTableModel {
                 subscriber.onSubscriptionUpdate(get(key));
         }
     }
-    private void updateUniversalSubscribers(String key)
+    private void updateObservers(String key)
     {
-        for(IoTSubscriber subscriber: universal_subscribers)
+        for(IoTObserver subscriber: observers)
             subscriber.onSubscriptionUpdate(get(key));
     }
 }
@@ -198,7 +186,7 @@ class InterruptManager extends HashMap<String,InterruptTicket> implements IoTSub
             InterruptTicket t = get(entry.getKey());
             IoTVariablesBase.getInstance().get(t.entryKey).unlock();
             IoTVariablesBase.getInstance().updateEntryValue(t.entryKey,t.lastValue);
-            IoTVariablesBase.getInstance().updateSubscribers(t.entryKey);
+            IoTVariablesBase.getInstance().updateAll(t.entryKey);
             IoTVariablesBase.getInstance().removeSubscriber(t.resumeKey,this);
             remove(t.resumeKey);
         }

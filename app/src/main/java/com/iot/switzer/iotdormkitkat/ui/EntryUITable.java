@@ -1,30 +1,21 @@
 package com.iot.switzer.iotdormkitkat.ui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
 
-import com.iot.switzer.iotdormkitkat.MainActivity;
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
-import com.iot.switzer.iotdormkitkat.devices.IoTSubscriber;
+import com.iot.switzer.iotdormkitkat.data.IoTObserver;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by Lucas Switzer on 6/25/2016.
  */
-public class EntryUITable extends TableLayout implements IoTSubscriber {
+public class EntryUITable extends TableLayout implements IoTObserver {
     private HashMap<String, EntryRow> rows;
     private Handler tableUpdateHandler;
     public static final int UPDATE_ROW = 1;
@@ -66,17 +57,6 @@ public class EntryUITable extends TableLayout implements IoTSubscriber {
     {
         Log.d("TABLE","Updating Row: "+key);
         rows.get(key).setValue(val);
-    }
-
-    @Override
-    public List<SubscriptionDescription> getSubscriptions() {
-        ArrayList<SubscriptionDescription> subs = new ArrayList<>();
-
-        /**
-         * Signifys that this is a universal subscriber
-         * */
-        subs.add(new SubscriptionDescription("", SubscriptionDescription.SubscriptionType.UNIVERSAL));
-        return subs;
     }
 }
 

@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.iot.switzer.iotdormkitkat.devices.IoTManager;
+import com.iot.switzer.iotdormkitkat.network.IoTManager;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.devices.IoTBluetoothDeviceController;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;

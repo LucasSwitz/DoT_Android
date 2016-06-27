@@ -1,7 +1,9 @@
-package com.iot.switzer.iotdormkitkat.devices;
+package com.iot.switzer.iotdormkitkat.network;
 
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.IoTVariablesBase;
+import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
+import com.iot.switzer.iotdormkitkat.devices.IoTDeviceListener;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,11 +47,6 @@ public class IoTManager implements IoTDeviceListener {
     }
 
     @Override
-    public void onVariablesUpdate(IoTSubscriptionEntry entry) {
-        IoTVariablesBase.getInstance().update(entry);
-    }
-
-    @Override
     public void onDisconnect(IoTDeviceController d) {
 
     }
@@ -57,5 +54,10 @@ public class IoTManager implements IoTDeviceListener {
     @Override
     public void onConnect(IoTDeviceController d) {
 
+    }
+
+    @Override
+    public void onSubscriptionUpdate(IoTSubscriptionEntry e) {
+        IoTVariablesBase.getInstance().update(e);
     }
 }

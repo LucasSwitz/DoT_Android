@@ -2,6 +2,9 @@ package com.iot.switzer.iotdormkitkat.devices;
 
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
+import com.iot.switzer.iotdormkitkat.data.IoTContributor;
+import com.iot.switzer.iotdormkitkat.data.IoTContributorListener;
+import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,7 +13,7 @@ import java.util.List;
 /**
  * Created by Administrator on 6/20/2016.
  */
-public abstract class IoTDeviceController implements IoTSubscriber {
+public abstract class IoTDeviceController implements IoTSubscriber,IoTContributor {
     public static final byte HEARTBEAT_HEADER = 0;
     public static final byte HEARTBEAT_REQUEST = 0x01;
     public static final byte HEARTBEAT_RETURN = 0x02;
@@ -24,7 +27,7 @@ public abstract class IoTDeviceController implements IoTSubscriber {
 
     public static final byte UNI_DELIM = ',';
 
-    private ArrayList<IoTDeviceListener> listeners;
+    private ArrayList<IoTContributorListener> listeners;
     private DeviceDescription description;
 
     public IoTDeviceController(String identifer, String token, int heartbeatInterval, List<SubscriptionDescription> subscriptions) {
@@ -36,14 +39,14 @@ public abstract class IoTDeviceController implements IoTSubscriber {
         listeners = new ArrayList<>();
     }
 
-    public void addListener(IoTDeviceListener listener) {
+    public void addListener(IoTContributorListener listener) {
         listeners.add(listener);
     }
 
-    protected void writeSubscriptionUpdate(String key, byte[] val) throws IOException {
+    protected void writeSubscriptionUpdateToDevice(String key, byte[] val) throws IOException {
 
         byte out[] = new byte[key.length() + val.length +1];
-        int i =0;
+        int i;
         for(i =0; i < key.length(); i++)
         {
             out[i] = (byte)key.charAt(i);
@@ -60,8 +63,8 @@ public abstract class IoTDeviceController implements IoTSubscriber {
         write(packet(SUBSCRIPTION_UPDATE, out));
     }
 
-    protected void writeSubscriptionUpdate(IoTSubscriptionEntry e) throws IOException {
-        writeSubscriptionUpdate(e.getKey(), e.getVal());
+    protected void writeSubscriptionUpdateToDevice(IoTSubscriptionEntry e) throws IOException {
+        writeSubscriptionUpdateToDevice(e.getKey(), e.getVal());
     }
 
     static public byte[] packet(byte header, byte[] data) {
@@ -93,9 +96,9 @@ public abstract class IoTDeviceController implements IoTSubscriber {
 
     public void signalSubscriptionChange(IoTSubscriptionEntry entry)
     {
-        for(IoTDeviceListener listener : listeners)
+        for(IoTContributorListener listener : listeners)
         {
-            listener.onVariablesUpdate(entry);
+            listener.onSubscriptionUpdate(entry);
         }
     }
 
