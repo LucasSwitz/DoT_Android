@@ -4,7 +4,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 
 import java.io.IOException;
@@ -112,11 +112,8 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
         byte buf[] = new byte[256];
         int buf_index = 0;
         int elementIndex = 0;
-
-        Log.d("PACKET", "Data length: " + String.valueOf(data.length));
         for (int i = 1; i < data.length; i++) {
             byte c = data[i];
-            Log.d("PACKET", "Data byte: " + String.valueOf(c));
             switch (c) {
                 case UNI_DELIM:
                     switch (elementIndex) {
@@ -171,7 +168,7 @@ class AsyncBluetoothReader implements Runnable
     public AsyncBluetoothReader(InputStream is)
     {
         this.is = is;
-        packet = new byte[512];
+        packet = new byte[1024];
     }
 
     public void setListener(AsyncBluetoothReaderListener listener)
@@ -193,7 +190,7 @@ class AsyncBluetoothReader implements Runnable
                 e.printStackTrace();
             }
             Log.d("DEVICE", "Started Listen...");
-            byte[] in = new byte[512];
+            byte[] in = new byte[1024];
             int numOfBytes = 0;
             try {
                 numOfBytes = is.read(in);
@@ -210,7 +207,7 @@ class AsyncBluetoothReader implements Runnable
                 if (in[numOfBytes - 1] == (char) 13) {
                     Log.d("PACKET", "Sending packet to be parsed..");
                     listener.onPacket(packet);
-                    packet = new byte[256];
+                    packet = new byte[1024];
                     packetSize = 0;
 
                 }

@@ -1,4 +1,9 @@
-package com.iot.switzer.iotdormkitkat.data;
+package com.iot.switzer.iotdormkitkat.data.entry;
+
+import com.iot.switzer.iotdormkitkat.data.IoTEntryListener;
+import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
+
+import java.util.Arrays;
 
 /**
  * Created by Administrator on 6/20/2016.
@@ -6,8 +11,8 @@ package com.iot.switzer.iotdormkitkat.data;
 public class IoTSubscriptionEntry {
     private SubscriptionDescription description;
     private byte[] val;
-    private byte[] oldVal;
     boolean locked;
+    private IoTEntryListener listener;
 
    public IoTSubscriptionEntry(SubscriptionDescription description, byte[] val) {
         this.description = description;
@@ -28,6 +33,9 @@ public class IoTSubscriptionEntry {
     {
         locked = false;
     }
+
+    public void setListener(IoTEntryListener listener){this.listener = listener;}
+
     public String getKey() {
         return description.key;
     }
@@ -58,6 +66,11 @@ public class IoTSubscriptionEntry {
         return (char)val[0];
     }
 
+    public boolean getValAsBool()
+    {
+        return (getValAsInt() != 0);
+    }
+
     public String getValAsString()
     {
         return "CHANGEME";
@@ -73,8 +86,36 @@ public class IoTSubscriptionEntry {
                 return getValAsChar();
             case STRING:
                 return getValAsString();
+            case BOOLEAN:
+                return getValAsBool();
             default:
                 return rawBytePtrToString(val);
+        }
+    }
+
+
+    public void update(IoTSubscriptionEntry e)
+    {
+        if(!locked) {
+            if (getVal() == null || !(Arrays.equals(e.getVal(), getVal()))) {
+                setVal(e.getVal());
+            }
+        }
+    }
+
+    private void signalListener()
+    {
+        if(listener != null)
+        {
+            listener.onEntryChange(this);
+        }
+    }
+
+    protected void update(SubscriptionDescription d)
+    {
+        if(d.type != getDescription().type)
+        {
+            getDescription().type = d.type;
         }
     }
 
@@ -88,14 +129,28 @@ public class IoTSubscriptionEntry {
         return s;
     }
 
+
+    public static byte[] bytePtrFromInteger(int i )
+    {
+        byte convert[] = new byte[4];
+
+        convert[0] = (byte)((i >> 24) & 0xFF);
+        convert[1] =  (byte)((i >> 16) & 0xFF);
+        convert[2] =  (byte)((i >> 8) & 0xFF);
+        convert[3] =  (byte)(i & 0xFF);
+
+        return convert;
+
+
+    }
+
     public final SubscriptionDescription getDescription()
     {
         return description;
     }
 
-    public void setVal(byte[] val) {
-        if(!locked) {
+    protected void setVal(byte[] val) {
             this.val = val;
-        }
+            signalListener();
     }
 }

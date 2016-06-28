@@ -1,5 +1,7 @@
 package com.iot.switzer.iotdormkitkat.data;
 
+import android.util.Log;
+
 /**
  * Created by Lucas Switzer on 6/25/2016.
  */
@@ -9,11 +11,12 @@ public class SubscriptionDescription
         INT,
         CHAR,
         STRING,
-        BYTE_PTR,
-        UNIVERSAL;
+        BOOLEAN,
+        BYTE_PTR;
 
         public static SubscriptionType fromInt(int i)
         {
+            Log.d("FROMINT",String.valueOf(i));
             switch (i)
             {
                 case 0:
@@ -22,6 +25,8 @@ public class SubscriptionDescription
                     return CHAR;
                 case 2:
                     return STRING;
+                case 3:
+                    return BOOLEAN;
                 default:
                     return BYTE_PTR;
             }

@@ -1,10 +1,10 @@
 package com.iot.switzer.iotdormkitkat.devices;
 
-import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.data.IoTContributor;
-import com.iot.switzer.iotdormkitkat.data.IoTContributorListener;
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
+import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
+import com.iot.switzer.iotdormkitkat.data.IoTContributorListener;
 
 import java.io.IOException;
 import java.util.ArrayList;

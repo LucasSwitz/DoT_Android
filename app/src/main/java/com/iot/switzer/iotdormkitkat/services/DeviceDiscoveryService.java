@@ -28,7 +28,7 @@ interface HandshakeListener {
  * Created by Administrator on 6/20/2016.
  */
 public class DeviceDiscoveryService extends Service implements Runnable{
-    private static final int HANDSHAKE_TIMEOUT = 10;
+    private static final int HANDSHAKE_TIMEOUT = 20;
     public static final String PARAM_IN_MSG = "com.iot.switzer.dormiot.param_n_msg";
     private boolean finding = false;
 
@@ -47,7 +47,7 @@ public class DeviceDiscoveryService extends Service implements Runnable{
     public void find() {
         while(finding) {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -192,7 +192,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                     handshakeThread.interrupt();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.d("BLUETOOTH", device.getAddress()+" :Device hand shake failed with error!");
         }
     }
 
@@ -210,7 +210,7 @@ class HandshakeService implements Runnable, HandshakeListener {
 
         int descIndex = 0;
         int bufIndex = 0;
-        byte buf[] = new byte[256];
+        byte buf[] = new byte[1024];
         String s = "";
         ArrayList<SubscriptionDescription> subscritptionDescriptions = new ArrayList<>();
 
@@ -281,7 +281,7 @@ class HandshakeService implements Runnable, HandshakeListener {
 
         HandshakeServiceReciever(InputStream is) {
             this.is = new BufferedInputStream(is);
-            packet = new byte[256];
+            packet = new byte[1024];
         }
 
         void addListener(HandshakeListener listener) {
@@ -295,7 +295,7 @@ class HandshakeService implements Runnable, HandshakeListener {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-                byte[] in = new byte[512];
+                byte[] in = new byte[1024];
                 int numOfBytes = 0;
                 try {
                     numOfBytes = is.read(in);

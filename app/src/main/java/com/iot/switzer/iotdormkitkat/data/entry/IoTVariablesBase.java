@@ -1,16 +1,20 @@
-package com.iot.switzer.iotdormkitkat.data;
+package com.iot.switzer.iotdormkitkat.data.entry;
 
 import android.util.Log;
 
+import com.iot.switzer.iotdormkitkat.data.IoTEntryListener;
+import com.iot.switzer.iotdormkitkat.data.IoTObserver;
+import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
+import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by Lucas Switzer on 6/20/2016.
  */
-public class IoTVariablesBase extends IoTTableModel {
+public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener {
     static private IoTVariablesBase instance;
     public static final byte DEFAULT_VALUE = 0;
     private HashMap<String, ArrayList<IoTSubscriber>> subscriptions;
@@ -24,64 +28,28 @@ public class IoTVariablesBase extends IoTTableModel {
         interruptManager = new InterruptManager();
     }
 
-    public void interruptEntry(String key, byte[] newValue, String resumeKey) {
-        IoTSubscriptionEntry entry = get(key);
-        if (entry != null) {
-            interruptManager.put(resumeKey, new InterruptTicket(entry.getKey(), newValue, resumeKey));
-        }
-    }
-
     static public IoTVariablesBase getInstance() {
         if (instance == null) {
             instance = new IoTVariablesBase();
         }
         return instance;
-
     }
 
-    public void update(IoTSubscriptionEntry entry) {
-
-        if (get(entry.getKey()) == null)
-            addEntry(entry);
-        else
-            updateEntry(entry);
-    }
-
-    public void updateEntry(IoTSubscriptionEntry entry) {
-        IoTSubscriptionEntry e = get(entry.getKey());
-        Log.d("DATABASE", "Entry updated: " + e.getKey() + "," + e.getVal());
-
-        if(!(Arrays.equals(e.getVal(),entry.getVal()))) {
-            updateEntryValue(entry.getKey(),entry.getVal());
+    @Override
+    public IoTSubscriptionEntry get(Object o)
+    {
+        if(super.get(o) == null)
+        {
+            addEntry(new IoTSubscriptionEntry((String)o,new byte[]{}));
         }
-
-        /**
-         * If the entry's type changes from the default type (BYTE_PTR) update it.
-         */
-        updateAll(entry.getKey());
-    }
-
-    protected void updateEntryValue(String key, byte[] value)
-    {
-        Log.d("DATABASE","Updated entry value: "+key);
-        get(key).setVal(value);
-    }
-
-    protected void updateEntryType(String key, SubscriptionDescription.SubscriptionType t)
-    {
-        Log.d("DATABASE","Updated entry type: "+key);
-        get(key).getDescription().type = t;
+        return super.get(o);
     }
 
     private void addEntry(IoTSubscriptionEntry entry) {
         Log.d("DATABASE", "Entry Added: " + entry.getKey() + "," + entry.getVal() + "," + entry.getDescription().type.name());
+        entry.setListener(this);
         put(entry.getKey(), entry);
-        updateAll(entry.getKey());
-    }
-
-    public IoTSubscriptionEntry get(String key) {
-        return super.get(key);
-    }
+   }
 
     public void removeSubscriber(String key, IoTSubscriber t)
     {
@@ -96,6 +64,7 @@ public class IoTVariablesBase extends IoTTableModel {
 
     public void addSubscriber(IoTSubscriber subscriber) {
 
+        Log.d("DATABASE","Adding Subscriber");
          for (SubscriptionDescription d : subscriber.getSubscriptions()) {
 
                 /**
@@ -112,7 +81,8 @@ public class IoTVariablesBase extends IoTTableModel {
                  *  If subscription entry does not exists yet, add it with default value.
                  */
                 if (get(d.key) == null) {
-                    update(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
+                    Log.d("DATABASE", "Adding New Entry based on Sub: " + d.key);
+                    addEntry(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
                 }
                 else
                 {
@@ -123,13 +93,13 @@ public class IoTVariablesBase extends IoTTableModel {
                     if((get(d.key).getDescription().type  == SubscriptionDescription.SubscriptionType.BYTE_PTR) &&
                             d.type != SubscriptionDescription.SubscriptionType.BYTE_PTR)
                     {
-                        updateEntryType(d.key,d.type);
+                        get(d.key).update(d);
+                        updateObservers(d.key);
                     }
                 }
-
-                /**
-                 * Update the subscriber with the current value of the entry
-                 * */
+             /**
+              * Update the subscriber with the current value of the entry
+              * */
                 subscriber.onSubscriptionUpdate(get(d.key));
             }
     }
@@ -158,6 +128,7 @@ public class IoTVariablesBase extends IoTTableModel {
 
     protected void updateAll(String key) {
 
+        Log.d("DATABASE","Updating all Subscribers of: "+key);
         updateRegularSubscribers(key);
         updateObservers(key);
     }
@@ -174,9 +145,19 @@ public class IoTVariablesBase extends IoTTableModel {
         for(IoTObserver subscriber: observers)
             subscriber.onSubscriptionUpdate(get(key));
     }
+
+    @Override
+    public void onEntryChange(IoTSubscriptionEntry e)
+    {
+        Log.d("DATABASE:","onEntryChange() "+e.getKey());
+        updateAll(e.getKey());
+    }
 }
 
-class InterruptManager extends HashMap<String,InterruptTicket> implements IoTSubscriber
+/**
+ * This Class needs rethought in general.
+ */
+class InterruptManager extends HashMap<String,InterruptTicket> implements IoTEntryMaster
 {
     @Override
     public void onSubscriptionUpdate(IoTSubscriptionEntry entry) {
@@ -184,8 +165,8 @@ class InterruptManager extends HashMap<String,InterruptTicket> implements IoTSub
         if(entry.getVal()[0] == 1)
         {
             InterruptTicket t = get(entry.getKey());
-            IoTVariablesBase.getInstance().get(t.entryKey).unlock();
-            IoTVariablesBase.getInstance().updateEntryValue(t.entryKey,t.lastValue);
+           // IoTVariablesBase.getInstance().get(t.entryKey).unlock();
+            IoTVariablesBase.getInstance().get(t.entryKey).setVal(t.lastValue);
             IoTVariablesBase.getInstance().updateAll(t.entryKey);
             IoTVariablesBase.getInstance().removeSubscriber(t.resumeKey,this);
             remove(t.resumeKey);
@@ -202,6 +183,16 @@ class InterruptManager extends HashMap<String,InterruptTicket> implements IoTSub
     {
         IoTVariablesBase.getInstance().updateSubscription(t.resumeKey,this);
         return super.put(s,t);
+    }
+
+    @Override
+    public void enable() {
+
+    }
+
+    @Override
+    public void disable() {
+
     }
 }
 
@@ -221,8 +212,8 @@ class InterruptTicket
         this.entryKey = entryKey;
         this.resumeKey = resumeKey;
 
-        IoTVariablesBase.getInstance().updateEntryValue(entryKey,newValue);
-        IoTVariablesBase.getInstance().get(entryKey).lock();
+        IoTVariablesBase.getInstance().get(entryKey).setVal(newValue);
+        //IoTVariablesBase.getInstance().get(entryKey).lock();
 
     }
 }
