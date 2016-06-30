@@ -3,6 +3,7 @@ package com.iot.switzer.iotdormkitkat.data.entry;
 import android.content.Context;
 import android.support.v7.widget.SwitchCompat;
 import android.widget.Switch;
+import android.widget.Toast;
 
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
@@ -36,10 +37,17 @@ public class IoTSubscriptionEntryBooleanController extends Switch implements IoT
         this.setChecked(value);
     }
 
-    public void enable()
-    {
-        entry.lock();
-        setEnabled(true);
+    @Override
+    public void enable() {
+        if(!entry.isLocked()) {
+            Toast.makeText(getContext(), entry.getKey()+": Enabled User Control",Toast.LENGTH_SHORT).show();
+            entry.lock();
+            setEnabled(true);
+        }
+        else
+        {
+            Toast.makeText(getContext(), entry.getKey()+" is Locked!",Toast.LENGTH_SHORT).show();
+        }
     }
     public void disable()
     {

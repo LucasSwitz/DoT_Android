@@ -28,7 +28,7 @@ interface HandshakeListener {
  * Created by Administrator on 6/20/2016.
  */
 public class DeviceDiscoveryService extends Service implements Runnable{
-    private static final int HANDSHAKE_TIMEOUT = 20;
+    private static final int HANDSHAKE_TIMEOUT = 10;
     public static final String PARAM_IN_MSG = "com.iot.switzer.dormiot.param_n_msg";
     private boolean finding = false;
 

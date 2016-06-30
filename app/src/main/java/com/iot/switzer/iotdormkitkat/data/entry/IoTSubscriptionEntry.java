@@ -11,6 +11,7 @@ import java.util.Arrays;
 public class IoTSubscriptionEntry {
     private SubscriptionDescription description;
     private byte[] val;
+    private byte[] lastVal;
     boolean locked;
     private IoTEntryListener listener;
 
@@ -144,12 +145,21 @@ public class IoTSubscriptionEntry {
 
     }
 
+    public boolean isLocked()
+    {
+        return locked;
+    }
+    public byte[] getLastVal()
+    {
+        return lastVal;
+    }
     public final SubscriptionDescription getDescription()
     {
         return description;
     }
 
     protected void setVal(byte[] val) {
+            lastVal = this.val;
             this.val = val;
             signalListener();
     }

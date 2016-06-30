@@ -19,13 +19,11 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
     public static final byte DEFAULT_VALUE = 0;
     private HashMap<String, ArrayList<IoTSubscriber>> subscriptions;
     private ArrayList<IoTObserver> observers;
-    private InterruptManager interruptManager;
 
     private IoTVariablesBase() {
 
         subscriptions = new HashMap<>();
         observers = new ArrayList<>();
-        interruptManager = new InterruptManager();
     }
 
     static public IoTVariablesBase getInstance() {
@@ -157,7 +155,7 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
 /**
  * This Class needs rethought in general.
  */
-class InterruptManager extends HashMap<String,InterruptTicket> implements IoTEntryMaster
+/*class InterruptManager extends HashMap<String,InterruptTicket> implements IoTEntryMaster
 {
     @Override
     public void onSubscriptionUpdate(IoTSubscriptionEntry entry) {
@@ -194,7 +192,7 @@ class InterruptManager extends HashMap<String,InterruptTicket> implements IoTEnt
     public void disable() {
 
     }
-}
+}*/
 
 class IoTTableModel extends HashMap<String, IoTSubscriptionEntry>
 {

@@ -13,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.iot.switzer.iotdormkitkat.R;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTEntryMaster;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 
 /**
@@ -39,7 +38,6 @@ public class EntryRow<T extends View &IoTUIController> extends TableRow implemen
         this.addView(this.title);
 
         this.controller = controller;
-        this.controller.setMinimumWidth(200);
 
         this.addView(controller);
 
@@ -57,7 +55,6 @@ public class EntryRow<T extends View &IoTUIController> extends TableRow implemen
     private void enableUserControls()
     {
         userControlled = true;
-        Toast.makeText(getContext(), title.getText()+": Enabled User Control",Toast.LENGTH_SHORT).show();
         controller.enable();
     }
 

@@ -12,6 +12,7 @@ public class SubscriptionDescription
         CHAR,
         STRING,
         BOOLEAN,
+        ENUM,
         BYTE_PTR;
 
         public static SubscriptionType fromInt(int i)
@@ -40,4 +41,6 @@ public class SubscriptionDescription
 
     public String key;
     public SubscriptionType type;
+    int highLimit;
+    int lowLimit;
 }

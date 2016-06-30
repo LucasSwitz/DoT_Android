@@ -13,7 +13,6 @@ import android.widget.TableLayout;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryBooleanController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryIntegerController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTEntryMaster;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.IoTObserver;
 
@@ -110,7 +109,7 @@ public class EntryValueUITable extends TableLayout implements IoTObserver{
         this.handleUpdate(UPDATE_ROW,entry);
     }
 
-    public<T extends View&IoTEntryMaster>void addRow(String key,T controller)
+    public<T extends View&IoTUIController>void addRow(String key,T controller)
     {
         EntryRow row = new EntryRow(getContext(),key,controller);
         IoTVariablesBase.getInstance().addSubscriber(controller);
