@@ -24,22 +24,21 @@ public class IoTPresetButton extends Button implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
+
         if (!presetEnabled) {
             for (Preset.PresetEntry e : preset) {
-                e.entry.lock();
                 e.entry.setVal(e.value);
+                e.entry.lock();
             }
-            Toast.makeText(getContext(), preset.getName()+": Enabled Preset Control",Toast.LENGTH_SHORT).show();
             presetEnabled = true;
             this.setBackgroundColor(Color.GREEN);
         }
         else
         {
             for (Preset.PresetEntry e : preset) {
+                e.entry.setVal(new byte[]{0,0,0,0});
                 e.entry.unlock();
-                e.entry.setVal(e.entry.getLastVal());
             }
-            Toast.makeText(getContext(), preset.getName()+": Disabled Preset Control",Toast.LENGTH_SHORT).show();
             presetEnabled = false;
             this.setBackgroundColor(Color.RED);
         }

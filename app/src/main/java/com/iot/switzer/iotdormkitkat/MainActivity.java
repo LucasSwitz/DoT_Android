@@ -5,6 +5,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ScrollView;
@@ -32,32 +35,55 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.main_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.discover_devices:
+                startDiscoveryService();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         instance = this;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         Log.d("START","Start of program!");
+
+
+        startDiscoveryService();
         setContentView(R.layout.activity_main);
 
         ScrollView scrollingView = new ScrollView(getApplicationContext());
-
         EntryValueUITable table = new EntryValueUITable(getApplicationContext());
         IoTVariablesBase.getInstance().addObserver(table);
-
         ViewGroup layout = (ViewGroup) findViewById(R.id.main_layout);
         scrollingView.addView(table);
+
 
         layout.addView(new IoTPresetButton(getApplicationContext(),new Preset("All Red",new Preset.PresetEntry[]{
                 new Preset.PresetEntry(IoTVariablesBase.getInstance().get("R"), IoTSubscriptionEntry.bytePtrFromInteger(255))})));
 
         layout.addView(scrollingView);
+    }
+    public static MainActivity getInstance(){return instance;}
 
+
+    private void startDiscoveryService()
+    {
         Intent msgIntent = new Intent(this, DeviceDiscoveryService.class);
         msgIntent.putExtra(DeviceDiscoveryService.PARAM_IN_MSG, "START");
         startService(msgIntent);
-        Log.d("START","After Service Start!");
     }
-    public static MainActivity getInstance(){return instance;}
 }
 

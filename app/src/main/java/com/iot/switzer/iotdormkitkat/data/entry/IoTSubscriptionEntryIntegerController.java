@@ -33,16 +33,15 @@ public class IoTSubscriptionEntryIntegerController extends SeekBar implements Io
         this.setOnSeekBarChangeListener(this);
 
 
-        new UpdateProgressBarTask(this);
+        new UpdateProgressBarTask(this,entry.getDescription().highLimit).execute();
         this.setBackgroundColor(Color.TRANSPARENT);
     }
 
     @Override
     public void onSubscriptionUpdate(IoTSubscriptionEntry entry)
     {
-        Log.d("TABLE","Sub Update");
+        Log.d("TABLE","Int Controller Update");
         value = entry.getValAsInt();
-        setProgress(value);
     }
 
     @Override
@@ -54,7 +53,9 @@ public class IoTSubscriptionEntryIntegerController extends SeekBar implements Io
 
     public void postValue()
     {
+        Log.d("INTCONTROLLER","Posting Value: "+String.valueOf(value));
         this.setProgress(value);
+        this.refreshDrawableState();
     }
 
     @Override
@@ -96,10 +97,12 @@ public class IoTSubscriptionEntryIntegerController extends SeekBar implements Io
 class UpdateProgressBarTask extends AsyncTask<Void,Void,Void>
 {
     SeekBar s;
+    int max;
 
-    UpdateProgressBarTask(SeekBar s)
+    UpdateProgressBarTask(SeekBar s, int max)
     {
         this.s = s;
+        this.max = max;
     }
 
     @Override
@@ -110,6 +113,8 @@ class UpdateProgressBarTask extends AsyncTask<Void,Void,Void>
     @Override
     protected void onPreExecute()
     {
-        s.setMax(255);
+        s.setMax(max);
+        s.setProgress(0);
+        s.refreshDrawableState();
     }
 }

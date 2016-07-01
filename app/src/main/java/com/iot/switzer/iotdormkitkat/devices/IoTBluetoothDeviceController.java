@@ -54,8 +54,15 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
 
     @Override
     public void write(byte[] out) throws IOException {
+
+        for(int i =0; i < out.length; i++)
+        {
+            Log.d("OUT","Writing: "+String.valueOf(out[i]));
+        }
+
         if (socket.isConnected())
             os.write(out);
+        os.flush();
     }
 
     @Override
@@ -78,6 +85,7 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
     @Override
     public void onSubscriptionUpdate(IoTSubscriptionEntry entry) {
         try {
+            Log.d(getToken(),"Writing to device: "+entry.getKey() + "," +entry.getValAsInt());
             writeSubscriptionUpdateToDevice(entry);
         } catch (IOException e) {
             e.printStackTrace();

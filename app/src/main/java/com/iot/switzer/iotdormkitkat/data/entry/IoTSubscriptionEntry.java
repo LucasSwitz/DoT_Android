@@ -52,13 +52,13 @@ public class IoTSubscriptionEntry {
             case 0:
                 return 0;
             case 1:
-                return val[0];
+                return (val[0]&0xFF);
             case 2:
-                return val[0] << 8 | val[1];
+                return (val[0] << 8 | val[1])&0xFF;
             case 3:
-                return val[0] << 16 | val[1] << 8 | val[2];
+                return (val[0] << 16 | val[1] << 8 | val[2])&0xFF;
             default:
-                return val[0] << 24 | val[1] << 16 | val[2] << 8 | val[3];
+                return (val[0] << 24 | val[1] << 16 | val[2] << 8 | val[3])&0xFF;
         }
     }
 

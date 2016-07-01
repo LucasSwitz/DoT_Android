@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.network.IoTManager;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.devices.IoTBluetoothDeviceController;
@@ -28,9 +29,10 @@ interface HandshakeListener {
  * Created by Administrator on 6/20/2016.
  */
 public class DeviceDiscoveryService extends Service implements Runnable{
-    private static final int HANDSHAKE_TIMEOUT = 10;
+    private static final int HANDSHAKE_TIMEOUT = 5;
     public static final String PARAM_IN_MSG = "com.iot.switzer.dormiot.param_n_msg";
     private boolean finding = false;
+    private int discoveryPeriod = 30;
 
     private BluetoothAdapter bthAdapter;
 
@@ -45,7 +47,10 @@ public class DeviceDiscoveryService extends Service implements Runnable{
     }
 
     public void find() {
-        while(finding) {
+        long start = System.currentTimeMillis();
+        Log.d("DISCOVERY","Started find for: "+String.valueOf(discoveryPeriod)+" seconds.");
+        finding = true;
+        while(finding && ((System.currentTimeMillis()-start)/1000) < discoveryPeriod) {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
@@ -63,20 +68,20 @@ public class DeviceDiscoveryService extends Service implements Runnable{
                         }
                     }
                     if (!match) {
-                        Log.d(device.getAddress(), "New Device: " + device.getAddress());
                         HandshakeService s = new HandshakeService(device, HANDSHAKE_TIMEOUT);
                         new Thread(s).start();
                     }
                 }
             }
         }
+        this.stopSelf();
     }
 
     @Override
     public void onCreate()
     {
         super.onCreate();
-        Log.d("BLUETOOTH","On Create!");
+        Log.d("DISCOVERY","On Create!");
     }
 
     @Override
@@ -107,15 +112,14 @@ public class DeviceDiscoveryService extends Service implements Runnable{
     @Override
     public void run()
     {
-        Log.d("BLUETOOTH", "Starting find!");
-        finding = true;
+        Log.d("DISCOVERY", "Starting find!");
         if (!bthAdapter.isEnabled()) {
             bthAdapter.enable();
         }
 
         if(bthAdapter.isEnabled())
         {
-            Log.d("BLUETOOTH","Adapter is enabled!");
+            Log.d("DISCOVERY","Adapter is enabled!");
         }
         find();
     }
@@ -139,14 +143,14 @@ class HandshakeService implements Runnable, HandshakeListener {
 
     private void attemptHandshake() {
         try {
-            Log.d("BLUETOOTH","Attemping to Handshake: "+device.getAddress());
+            Log.d("DISCOVERY","Attemping to Handshake: "+device.getAddress());
             socket = device.createRfcommSocketToServiceRecord(IoTBluetoothDeviceController.DEFAULT_UUID);
             BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
             try {
                 if(!socket.isConnected())
-                    Log.d("BLUETOOTH",device.getAddress()+"Socket was not connected..connecting...");
+                    Log.d("DISCOVERY",device.getAddress()+"Socket was not connected..connecting...");
                 socket.connect();
-                Log.d("BLUETOOTH",device.getName()+" :Device successfully connected!");
+                Log.d("DISCOVERY",device.getName()+" :Device successfully opened socket!");
             }
             catch (IOException e)
             {
@@ -165,7 +169,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                 os.write(IoTDeviceController.HANDSHAKE_REQUEST);
             }catch (IOException e)
             {
-                Log.d("BLUEOOTH",device.getAddress()+": Unabled to write handshake.");
+                Log.d("DISCOVERY",device.getAddress()+": Unabled to write handshake.");
             }
 
             double start = System.currentTimeMillis();
@@ -181,18 +185,18 @@ class HandshakeService implements Runnable, HandshakeListener {
                 }
             }
             if (!handshakeService.success()) {
-                Log.d("BLUETOOTH", device.getAddress()+" :Device did not handshake in given time");
+                Log.d("DISCOVERY", device.getAddress()+" :Device did not handshake in given time");
                 socket.close();
                 handshakeThread.interrupt();
             }
             else
             {
-                Log.d("BLUETOOTH", device.getAddress()+" :Device hand shook!");
+                Log.d("DISCOVERY", device.getAddress()+" :Device hand shook!");
                 if(handshakeThread.isAlive())
                     handshakeThread.interrupt();
             }
         } catch (IOException e) {
-            Log.d("BLUETOOTH", device.getAddress()+" :Device hand shake failed with error!");
+            Log.d("DISCOVERY", device.getAddress()+" :Device hand shake failed with error!");
         }
     }
 
@@ -212,7 +216,7 @@ class HandshakeService implements Runnable, HandshakeListener {
         int bufIndex = 0;
         byte buf[] = new byte[1024];
         String s = "";
-        ArrayList<SubscriptionDescription> subscritptionDescriptions = new ArrayList<>();
+        SubscriptionDescription subDesc = new SubscriptionDescription();
 
         for (int i = 0; i < data.length; i++) {
             byte c = data[i];
@@ -221,7 +225,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                 case 10:
                     break;
                 case 13:
-                    Log.d("DEVICE","Adding Device with token,address: "+desc.token + ','+desc.identifer);
+                    Log.d("DISCOVERY","Adding Device with token,address: "+desc.token + ','+desc.identifer);
                     try {
                         OutputStream os = socket.getOutputStream();
                         os.write(IoTDeviceController.HANDSHAKE_RETURN);
@@ -248,17 +252,33 @@ class HandshakeService implements Runnable, HandshakeListener {
                             break;
                         case 3:
                         default:
-                            if(descIndex%2 == 0)
-                            {
-                                desc.subscriptionDescriptions.add(new SubscriptionDescription(s, SubscriptionDescription.SubscriptionType.fromInt(buf[0])));
-                            }
-                            else
+                            if((descIndex-2)%4 == 1)
                             {
                                 s = "";
                                 for(int k = 0; k < bufIndex;k++)
                                 {
                                     s+=(char)buf[k];
                                 }
+                                subDesc.key = s;
+                                Log.d("DEVICE","Sub Desc Key: "+s);
+                            }
+                            else if((descIndex-2)%4 == 2)
+                            {
+                                subDesc.type = SubscriptionDescription.SubscriptionType.fromInt(buf[0]);
+                                Log.d("DEVICE","Type: "+subDesc.type.name());
+                            }
+                            else if((descIndex-2)%4 == 3)
+                            {
+                                subDesc.lowLimit = buf[0]& 0xFF;
+                                Log.d("DEVICE", "Low: "+String.valueOf(subDesc.lowLimit));
+                            }
+                            else if ((descIndex-2)%4 == 0)
+                            {
+                                subDesc.highLimit = buf[0]& 0xFF;
+                                Log.d("DEVICE", "High: "+String.valueOf(subDesc.highLimit));
+
+                                desc.subscriptionDescriptions.add(subDesc);
+                                subDesc = new SubscriptionDescription();
                             }
                     }
                     bufIndex = 0;

@@ -17,7 +17,6 @@ public class SubscriptionDescription
 
         public static SubscriptionType fromInt(int i)
         {
-            Log.d("FROMINT",String.valueOf(i));
             switch (i)
             {
                 case 0:
@@ -28,19 +27,33 @@ public class SubscriptionDescription
                     return STRING;
                 case 3:
                     return BOOLEAN;
+                case 4:
+                    return ENUM;
                 default:
                     return BYTE_PTR;
             }
         }
     }
-    public SubscriptionDescription(String key, SubscriptionType type)
+    public SubscriptionDescription(String key, SubscriptionType type, int lowLimit, int highLimit)
     {
+        this.highLimit = highLimit;
+        this.lowLimit = lowLimit;
         this.type = type;
         this.key = key;
     }
 
+    public SubscriptionDescription(String key, SubscriptionType type)
+    {
+        this(key,type,0,255);
+    }
+
+    public SubscriptionDescription()
+    {
+
+    }
+
     public String key;
     public SubscriptionType type;
-    int highLimit;
-    int lowLimit;
+    public int highLimit;
+    public int lowLimit;
 }

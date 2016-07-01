@@ -9,6 +9,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="horizontal"
     tools:context="com.iot.switzer.iotdormkitkat.MainActivity"
+    android:showAsAction="ifRoom"
     android:id="@+id/main_layout">
 
 </LinearLayout>
