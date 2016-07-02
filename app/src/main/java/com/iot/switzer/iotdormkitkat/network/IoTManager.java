@@ -32,16 +32,13 @@ public class IoTManager implements IoTDeviceListener {
         IoTVariablesBase.getInstance().addSubscriber(device);
     }
 
-    public Collection<IoTDeviceController> getLiveDevices()
-    {
+    public Collection<IoTDeviceController> getLiveDevices() {
         return devices.values();
     }
 
 
-    public void destroy()
-    {
-        for(IoTDeviceController deviceController : devices.values())
-        {
+    public void destroy() {
+        for (IoTDeviceController deviceController : devices.values()) {
             deviceController.stop();
         }
     }

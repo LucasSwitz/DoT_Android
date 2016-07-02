@@ -9,14 +9,13 @@ import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by Lucas Switzer on 6/20/2016.
  */
 public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener {
-    static private IoTVariablesBase instance;
     public static final byte DEFAULT_VALUE = 0;
+    static private IoTVariablesBase instance;
     private HashMap<String, ArrayList<IoTSubscriber>> subscriptions;
     private ArrayList<IoTObserver> observers;
 
@@ -34,11 +33,9 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
     }
 
     @Override
-    public IoTSubscriptionEntry get(Object o)
-    {
-        if(super.get(o) == null)
-        {
-            addEntry(new IoTSubscriptionEntry((String)o,new byte[]{}));
+    public IoTSubscriptionEntry get(Object o) {
+        if (super.get(o) == null) {
+            addEntry(new IoTSubscriptionEntry((String) o, new byte[]{}));
         }
         return super.get(o);
     }
@@ -47,14 +44,11 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
         Log.d("DATABASE", "Entry Added: " + entry.getKey() + "," + entry.getVal() + "," + entry.getDescription().type.name());
         entry.setListener(this);
         put(entry.getKey(), entry);
-   }
+    }
 
-    public void removeSubscriber(String key, IoTSubscriber t)
-    {
-        for(int i =0; i < subscriptions.get(key).size(); i++)
-        {
-            if(subscriptions.get(key).get(i) == t)
-            {
+    public void removeSubscriber(String key, IoTSubscriber t) {
+        for (int i = 0; i < subscriptions.get(key).size(); i++) {
+            if (subscriptions.get(key).get(i) == t) {
                 subscriptions.get(key).remove(i);
             }
         }
@@ -62,92 +56,83 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
 
     public void addSubscriber(IoTSubscriber subscriber) {
 
-        Log.d("DATABASE","Adding Subscriber");
-         for (SubscriptionDescription d : subscriber.getSubscriptions()) {
+        Log.d("DATABASE", "Adding Subscriber");
+        for (SubscriptionDescription d : subscriber.getSubscriptions()) {
 
-                /**
-                 * If subscription doesn't exist init its index
-                 * */
-                if (subscriptions.get(d.key) == null) {
-                    subscriptions.put(d.key, new ArrayList<IoTSubscriber>());
-                }
-
-                Log.d("DATABASE", "Adding subscriber to: " + d.key);
-                subscriptions.get(d.key).add(subscriber);
-
-                /**
-                 *  If subscription entry does not exists yet, add it with default value.
-                 */
-                if (get(d.key) == null) {
-                    Log.d("DATABASE", "Adding New Entry based on Sub: " + d.key);
-                    addEntry(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
-                }
-                else
-                {
-                    /**
-                     * If a subscriber further describes and entry type past the default
-                     * (BYTE_PTR), update the entry.
-                     */
-                    if((get(d.key).getDescription().type  == SubscriptionDescription.SubscriptionType.BYTE_PTR) &&
-                            d.type != SubscriptionDescription.SubscriptionType.BYTE_PTR)
-                    {
-                        get(d.key).update(d);
-                        updateObservers(d.key);
-                    }
-                }
-             /**
-              * Update the subscriber with the current value of the entry
-              * */
-                subscriber.onSubscriptionUpdate(get(d.key));
+            /**
+             * If subscription doesn't exist init its index
+             * */
+            if (subscriptions.get(d.key) == null) {
+                subscriptions.put(d.key, new ArrayList<IoTSubscriber>());
             }
+
+            Log.d("DATABASE", "Adding subscriber to: " + d.key);
+            subscriptions.get(d.key).add(subscriber);
+
+            /**
+             *  If subscription entry does not exists yet, add it with default value.
+             */
+            if (get(d.key) == null) {
+                Log.d("DATABASE", "Adding New Entry based on Sub: " + d.key);
+                addEntry(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
+            } else {
+                /**
+                 * If a subscriber further describes and entry type past the default
+                 * (BYTE_PTR), update the entry.
+                 */
+                if ((get(d.key).getDescription().type == SubscriptionDescription.SubscriptionType.BYTE_PTR) &&
+                        d.type != SubscriptionDescription.SubscriptionType.BYTE_PTR) {
+                    get(d.key).update(d);
+                    updateObservers(d.key);
+                }
+            }
+            /**
+             * Update the subscriber with the current value of the entry
+             * */
+            subscriber.onSubscriptionUpdate(get(d.key));
+        }
     }
 
-    public void updateSubscription(String key,IoTSubscriber s)
-    {
-        if(subscriptions.get(key) != null)
-        {
+    public void updateSubscription(String key, IoTSubscriber s) {
+        if (subscriptions.get(key) != null) {
             subscriptions.get(key).add(s);
         }
     }
 
-    public void addObserver(IoTObserver observer)
-    {
-        Log.d("DATABASE","Added Observer.");
+    public void addObserver(IoTObserver observer) {
+        Log.d("DATABASE", "Added Observer.");
         observers.add(observer);
 
         /**
          * Update observers with all the current entry values
          * */
-        for(IoTSubscriptionEntry e: values())
-        {
+        for (IoTSubscriptionEntry e : values()) {
             observer.onSubscriptionUpdate(e);
         }
     }
 
     protected void updateAll(String key) {
 
-        Log.d("DATABASE","Updating all Subscribers of: "+key);
+        Log.d("DATABASE", "Updating all Subscribers of: " + key);
         updateRegularSubscribers(key);
         updateObservers(key);
     }
 
-    private void updateRegularSubscribers(String key)
-    {
+    private void updateRegularSubscribers(String key) {
         if (subscriptions.get(key) != null) {
             for (IoTSubscriber subscriber : subscriptions.get(key))
                 subscriber.onSubscriptionUpdate(get(key));
         }
     }
-    private void updateObservers(String key)
-    {
-        for(IoTObserver subscriber: observers)
+
+    private void updateObservers(String key) {
+        for (IoTObserver subscriber : observers)
             subscriber.onSubscriptionUpdate(get(key));
     }
 
     @Override
-    public void onEntryChange(IoTSubscriptionEntry e)
-    {
-        Log.d("DATABASE:","onEntryChange() "+e.getKey());
+    public void onEntryChange(IoTSubscriptionEntry e) {
+        Log.d("DATABASE:", "onEntryChange() " + e.getKey());
         updateAll(e.getKey());
     }
 }
@@ -194,18 +179,20 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
     }
 }*/
 
-class IoTTableModel extends HashMap<String, IoTSubscriptionEntry>
-{
-    public byte[] asPacket(){return null;};
+class IoTTableModel extends HashMap<String, IoTSubscriptionEntry> {
+    public byte[] asPacket() {
+        return null;
+    }
+
+    ;
 }
 
-class InterruptTicket
-{
+class InterruptTicket {
     public String resumeKey;
     public String entryKey;
     public byte[] lastValue;
-    InterruptTicket(String entryKey,byte[] newValue,String resumeKey)
-    {
+
+    InterruptTicket(String entryKey, byte[] newValue, String resumeKey) {
         this.lastValue = IoTVariablesBase.getInstance().get(entryKey).getVal();
         this.entryKey = entryKey;
         this.resumeKey = resumeKey;

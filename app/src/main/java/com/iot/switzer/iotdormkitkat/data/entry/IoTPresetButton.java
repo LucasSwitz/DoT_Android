@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
-import android.widget.Toast;
 
 import com.iot.switzer.iotdormkitkat.presets.Preset;
 
@@ -14,6 +13,7 @@ import com.iot.switzer.iotdormkitkat.presets.Preset;
 public class IoTPresetButton extends Button implements View.OnClickListener {
     private Preset preset;
     private boolean presetEnabled = false;
+
     public IoTPresetButton(Context context, Preset p) {
         super(context);
         this.preset = p;
@@ -32,11 +32,9 @@ public class IoTPresetButton extends Button implements View.OnClickListener {
             }
             presetEnabled = true;
             this.setBackgroundColor(Color.GREEN);
-        }
-        else
-        {
+        } else {
             for (Preset.PresetEntry e : preset) {
-                e.entry.setVal(new byte[]{0,0,0,0});
+                e.entry.setVal(new byte[]{0, 0, 0, 0});
                 e.entry.unlock();
             }
             presetEnabled = false;

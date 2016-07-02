@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">IoT Dorm</string>
-    <string name="discover_devices_menu_item">Discover Devices</string>
+    <string name="discover_devices_menu_item_title">Discover Devices</string>
+    <string name="add_preset_menu_item_title">Add Preset</string>
 </resources>

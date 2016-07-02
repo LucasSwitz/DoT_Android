@@ -17,19 +17,18 @@ import java.util.List;
 public class IoTSubscriptionEntryEnumController extends Spinner implements IoTUIController {
 
     private IoTSubscriptionEntry entry;
-    public IoTSubscriptionEntryEnumController(Context context,IoTSubscriptionEntry entry)
-    {
+
+    public IoTSubscriptionEntryEnumController(Context context, IoTSubscriptionEntry entry) {
         super(context);
         this.entry = entry;
 
         Integer enums[] = new Integer[entry.getDescription().highLimit];
 
-        for(int i =0; i < enums.length;i++)
-        {
+        for (int i = 0; i < enums.length; i++) {
             enums[i] = i;
         }
 
-        ArrayAdapter<Integer> spinnerArrayAdapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_spinner_item, enums);
+        ArrayAdapter<Integer> spinnerArrayAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, enums);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         this.setAdapter(spinnerArrayAdapter);
     }
@@ -41,14 +40,12 @@ public class IoTSubscriptionEntryEnumController extends Spinner implements IoTUI
 
     @Override
     public void enable() {
-        if(!entry.isLocked()) {
-            Toast.makeText(getContext(), entry.getKey()+": Enabled User Control",Toast.LENGTH_SHORT).show();
+        if (!entry.isLocked()) {
+            Toast.makeText(getContext(), entry.getKey() + ": Enabled User Control", Toast.LENGTH_SHORT).show();
             entry.lock();
             setEnabled(true);
-        }
-        else
-        {
-            Toast.makeText(getContext(), entry.getKey()+" is Locked!",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), entry.getKey() + " is Locked!", Toast.LENGTH_SHORT).show();
         }
     }
 

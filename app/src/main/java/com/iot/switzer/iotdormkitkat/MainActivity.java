@@ -1,7 +1,6 @@
 package com.iot.switzer.iotdormkitkat;
 
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,6 +11,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ScrollView;
 
+import com.iot.switzer.iotdormkitkat.activities.AddPresetActivity;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTPresetButton;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
@@ -25,9 +25,12 @@ public class MainActivity extends AppCompatActivity {
 
     private static MainActivity instance;
 
+    public static MainActivity getInstance() {
+        return instance;
+    }
+
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
         Intent msgIntent = new Intent(this, DeviceDiscoveryService.class);
         stopService(msgIntent);
@@ -44,8 +47,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.discover_devices:
+            case R.id.discover_devices_menu_item:
                 startDiscoveryService();
+                return true;
+            case R.id.add_preset_menu_item:
+                launchAddPresetActivity();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -58,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
         instance = this;
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        Log.d("START","Start of program!");
+        Log.d("START", "Start of program!");
 
 
         startDiscoveryService();
@@ -71,19 +77,22 @@ public class MainActivity extends AppCompatActivity {
         scrollingView.addView(table);
 
 
-        layout.addView(new IoTPresetButton(getApplicationContext(),new Preset("All Red",new Preset.PresetEntry[]{
+        layout.addView(new IoTPresetButton(getApplicationContext(), new Preset("All Red", new Preset.PresetEntry[]{
                 new Preset.PresetEntry(IoTVariablesBase.getInstance().get("R"), IoTSubscriptionEntry.bytePtrFromInteger(255))})));
 
         layout.addView(scrollingView);
     }
-    public static MainActivity getInstance(){return instance;}
 
-
-    private void startDiscoveryService()
-    {
+    private void startDiscoveryService() {
         Intent msgIntent = new Intent(this, DeviceDiscoveryService.class);
         msgIntent.putExtra(DeviceDiscoveryService.PARAM_IN_MSG, "START");
         startService(msgIntent);
+    }
+
+    private void launchAddPresetActivity()
+    {
+        Intent intent = new Intent(this, AddPresetActivity.class);
+        startActivity(intent);
     }
 }
 

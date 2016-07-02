@@ -1,19 +1,13 @@
 package com.iot.switzer.iotdormkitkat.data.entry;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-import com.iot.switzer.iotdormkitkat.MainActivity;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.ui.IoTUIController;
 
 import java.util.ArrayList;
@@ -24,23 +18,22 @@ import java.util.List;
  * Created by Lucas Switzer on 6/27/2016.
  */
 public class IoTSubscriptionEntryIntegerController extends SeekBar implements IoTUIController, SeekBar.OnSeekBarChangeListener {
-    private IoTSubscriptionEntry entry;
     int value = 0;
+    private IoTSubscriptionEntry entry;
 
-    public IoTSubscriptionEntryIntegerController(Context context,IoTSubscriptionEntry entry) {
+    public IoTSubscriptionEntryIntegerController(Context context, IoTSubscriptionEntry entry) {
         super(context);
         this.entry = entry;
         this.setOnSeekBarChangeListener(this);
 
 
-        new UpdateProgressBarTask(this,entry.getDescription().highLimit).execute();
+        new UpdateProgressBarTask(this, entry.getDescription().highLimit).execute();
         this.setBackgroundColor(Color.TRANSPARENT);
     }
 
     @Override
-    public void onSubscriptionUpdate(IoTSubscriptionEntry entry)
-    {
-        Log.d("TABLE","Int Controller Update");
+    public void onSubscriptionUpdate(IoTSubscriptionEntry entry) {
+        Log.d("TABLE", "Int Controller Update");
         value = entry.getValAsInt();
     }
 
@@ -51,9 +44,8 @@ public class IoTSubscriptionEntryIntegerController extends SeekBar implements Io
         return d;
     }
 
-    public void postValue()
-    {
-        Log.d("INTCONTROLLER","Posting Value: "+String.valueOf(value));
+    public void postValue() {
+        Log.d("INTCONTROLLER", "Posting Value: " + String.valueOf(value));
         this.setProgress(value);
         this.refreshDrawableState();
     }
@@ -70,19 +62,17 @@ public class IoTSubscriptionEntryIntegerController extends SeekBar implements Io
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-         entry.setVal(IoTSubscriptionEntry.bytePtrFromInteger(this.getProgress()));
+        entry.setVal(IoTSubscriptionEntry.bytePtrFromInteger(this.getProgress()));
     }
 
     @Override
     public void enable() {
-        if(!entry.isLocked()) {
-            Toast.makeText(getContext(), entry.getKey()+": Enabled User Control",Toast.LENGTH_SHORT).show();
+        if (!entry.isLocked()) {
+            Toast.makeText(getContext(), entry.getKey() + ": Enabled User Control", Toast.LENGTH_SHORT).show();
             entry.lock();
             setEnabled(true);
-        }
-        else
-        {
-            Toast.makeText(getContext(), entry.getKey()+" is Locked!",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), entry.getKey() + " is Locked!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -94,13 +84,11 @@ public class IoTSubscriptionEntryIntegerController extends SeekBar implements Io
 
 }
 
-class UpdateProgressBarTask extends AsyncTask<Void,Void,Void>
-{
+class UpdateProgressBarTask extends AsyncTask<Void, Void, Void> {
     SeekBar s;
     int max;
 
-    UpdateProgressBarTask(SeekBar s, int max)
-    {
+    UpdateProgressBarTask(SeekBar s, int max) {
         this.s = s;
         this.max = max;
     }
@@ -111,8 +99,7 @@ class UpdateProgressBarTask extends AsyncTask<Void,Void,Void>
     }
 
     @Override
-    protected void onPreExecute()
-    {
+    protected void onPreExecute() {
         s.setMax(max);
         s.setProgress(0);
         s.refreshDrawableState();

@@ -1,13 +1,10 @@
 package com.iot.switzer.iotdormkitkat.data.entry;
 
 import android.content.Context;
-import android.support.v7.widget.SwitchCompat;
 import android.widget.Switch;
 import android.widget.Toast;
 
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 import com.iot.switzer.iotdormkitkat.ui.IoTUIController;
 
 import java.util.ArrayList;
@@ -21,8 +18,7 @@ public class IoTSubscriptionEntryBooleanController extends Switch implements IoT
     private IoTSubscriptionEntry entry;
     private boolean value;
 
-    public IoTSubscriptionEntryBooleanController(Context context,IoTSubscriptionEntry entry)
-    {
+    public IoTSubscriptionEntryBooleanController(Context context, IoTSubscriptionEntry entry) {
         super(context);
         this.entry = entry;
         this.setChecked(false);
@@ -39,18 +35,16 @@ public class IoTSubscriptionEntryBooleanController extends Switch implements IoT
 
     @Override
     public void enable() {
-        if(!entry.isLocked()) {
-            Toast.makeText(getContext(), entry.getKey()+": Enabled User Control",Toast.LENGTH_SHORT).show();
+        if (!entry.isLocked()) {
+            Toast.makeText(getContext(), entry.getKey() + ": Enabled User Control", Toast.LENGTH_SHORT).show();
             entry.lock();
             setEnabled(true);
-        }
-        else
-        {
-            Toast.makeText(getContext(), entry.getKey()+" is Locked!",Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), entry.getKey() + " is Locked!", Toast.LENGTH_SHORT).show();
         }
     }
-    public void disable()
-    {
+
+    public void disable() {
         entry.unlock();
         setEnabled(false);
     }
