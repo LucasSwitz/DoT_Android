@@ -2,6 +2,7 @@ package com.iot.switzer.iotdormkitkat.activities;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -11,6 +12,7 @@ import android.widget.TableRow;
 
 import com.iot.switzer.iotdormkitkat.R;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 
 /**
  * Created by Lucas Switzer on 7/2/2016.
@@ -64,7 +66,29 @@ public class AddPresetRow{
     }
     public String getEntryValue()
     {
-        return entryValueEditText.getText().toString();
+        String val = entryValueEditText.getText().toString();
+        byte[] outbytes = null;
+
+        Log.d("ADDPRESET","Type: "+getEntryType().name());
+        switch (getEntryType())
+        {
+            case INT:
+                outbytes = IoTSubscriptionEntry.bytePtrFromInteger(Integer.parseInt(val));
+                break;
+            case CHAR:
+                break;
+            case STRING:
+                outbytes = IoTSubscriptionEntry.bytePtrFromString(val);
+                break;
+            case BOOLEAN:
+                outbytes = IoTSubscriptionEntry.bytePtrFromBoolean(Boolean.parseBoolean(val));
+                break;
+            case ENUM:
+                outbytes = IoTSubscriptionEntry.bytePtrFromInteger(Integer.parseInt(val));
+                break;
+        }
+        Log.d("ADDPRESET","Size: "+String.valueOf(outbytes.length));
+        return IoTSubscriptionEntry.stringFromBytesPtr(outbytes);
     }
 
     public void warn()

@@ -4,7 +4,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 
+import com.iot.switzer.iotdormkitkat.data.IoTContributor;
 import com.iot.switzer.iotdormkitkat.presets.Preset;
 
 /**

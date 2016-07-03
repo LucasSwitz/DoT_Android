@@ -2,6 +2,7 @@ package com.iot.switzer.iotdormkitkat.presets;
 
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 
 import java.util.ArrayList;
 
@@ -10,17 +11,55 @@ import java.util.ArrayList;
  */
 public class Preset extends ArrayList<Preset.PresetEntry> {
 
-    private String name;
+    private String name = "";
+    public static final char PRESET_DELIM = '~';
 
-    public Preset(String name, String filePath) {
-        this.name = name;
-        loadFromFile(filePath);
+    public Preset(String presetString) {
+        loadFromString(presetString);
     }
 
-    public Preset(String name, PresetEntry... configuration) {
-        this.name = name;
-        for (PresetEntry e : configuration) {
-            add(e);
+
+    private void loadFromString(String inString)
+    {
+        String currentValue = "";
+        SubscriptionDescription.SubscriptionType type = SubscriptionDescription.SubscriptionType.BYTE_PTR;
+        String entryName ="";
+        byte[] value;
+        for(char c : inString.toCharArray())
+        {
+            switch (c)
+            {
+                case PresetEntry.PRESET_TYPE_DELIM:
+                    type = SubscriptionDescription.SubscriptionType.fromInt(Integer.parseInt(currentValue));
+                    currentValue = "";
+                    break;
+                case PresetEntry.PRESET_VALUE_DELIM:
+                    entryName = currentValue;
+                    currentValue = "";
+                    break;
+                case '\n':
+                    if(name.equals(""))
+                    {
+                        name = currentValue;
+                    }
+                    else
+                    {
+                        value = IoTSubscriptionEntry.bytePtrFromString(currentValue);
+                        /**
+                         * This should ask the variables base for this SubscriptionEntry (create it if
+                         * it doest exists), then return it to our PresetEntry.
+                         */
+                        PresetEntry e = new PresetEntry(IoTVariablesBase.getInstance().get(entryName), value);
+                        e.entry.updateType(type);
+                        add(e);
+                    }
+                    currentValue = "";
+                    break;
+                case '\r':
+                    break;
+                default:
+                    currentValue+=c;
+            }
         }
     }
 
@@ -28,14 +67,11 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
         return name;
     }
 
-
-    protected void loadFromFile(String path) {
-
-    }
-
     public static class PresetEntry {
         public IoTSubscriptionEntry entry;
         public byte[] value;
+        public static final char PRESET_TYPE_DELIM = ':';
+        public static final char PRESET_VALUE_DELIM = '=';
 
         public PresetEntry(IoTSubscriptionEntry e, byte[] value) {
             this.entry = e;
@@ -44,20 +80,19 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
 
         public String toExportString()
         {
-            String out = entry.getKey()+','
-                    + String.valueOf(SubscriptionDescription.SubscriptionType.asInt(entry.getDescription().type)) + ','
+            String out = String.valueOf(SubscriptionDescription.SubscriptionType.asInt(entry.getDescription().type)) + PRESET_TYPE_DELIM
+                    + entry.getKey() + PRESET_VALUE_DELIM
                     + String.valueOf(entry.getValueAsType())
-                    + "\r\n";
-
+                    + '\n';
             return out;
         }
 
         public static String toExportString(String key, SubscriptionDescription.SubscriptionType type,String val)
         {
-            String out = key+','
-                    + String.valueOf(SubscriptionDescription.SubscriptionType.asInt(type)) + ','
+            String out = String.valueOf(SubscriptionDescription.SubscriptionType.asInt(type)) + PRESET_TYPE_DELIM
+                    + key + PRESET_VALUE_DELIM
                     + val
-                    + "\r\n";
+                    + '\n';
 
             return out;
         }

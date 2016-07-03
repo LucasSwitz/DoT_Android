@@ -1,6 +1,8 @@
 package com.iot.switzer.iotdormkitkat.activities;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
@@ -25,9 +27,11 @@ import com.iot.switzer.iotdormkitkat.Constants;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.FilterWriter;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 
 /**
  * Created by Lucas Switzer on 7/1/2016.
@@ -36,6 +40,9 @@ public class AddPresetActivity extends Activity {
 
     private AddPresetTable table;
     private EditText presetNameEditText;
+    public static final int CREATE_NEW_PRESET = 1;
+    public static final int PRESET_NOT_ADDED = 10;
+    public static final int PRESET_ADDED = 11;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +85,6 @@ public class AddPresetActivity extends Activity {
 
     private void exportPresetToFile()
     {
-        File presetFile = new File(getExternalFilesDir(null),"Presets.txt");
         String presetName = presetNameEditText.getText().toString();
 
         if(presetName.isEmpty())
@@ -95,7 +101,6 @@ public class AddPresetActivity extends Activity {
         for(AddPresetRow row: table) {
 
             String entryName = row.getEntryName();
-            SubscriptionDescription.SubscriptionType type = row.getEntryType();
             String value = row.getEntryValue();
 
             if(entryName.isEmpty() || value.isEmpty())
@@ -104,29 +109,48 @@ public class AddPresetActivity extends Activity {
                 verfied = false;
             }
             else
+            {
                 row.good();
-            {   if(verfied)
-                    out += Preset.PresetEntry.toExportString(row.getEntryName(),row.getEntryType(),row.getEntryValue());
+                if(verfied) {
+                    out += Preset.PresetEntry.toExportString(entryName, row.getEntryType(),
+                            value);
+                }
             }
         }
+
         if(!verfied)
         {
             Toast.makeText(getApplicationContext(),"Please fill in all fields",Toast.LENGTH_SHORT).show();
             return;
         }
-        out+="===";
+
+        out+=Preset.PRESET_DELIM;
+        out+="\r\n";
+
+        File outFile = new File(getExternalFilesDir(null),Constants.PRESETS_FILE_NAME);
+        FileOutputStream fos = null;
         try {
 
-            BufferedWriter fw = new BufferedWriter(new FileWriter(presetFile));
+            fos = new FileOutputStream(outFile,true);
+            Log.d("ADDPRESET","Out: "+out);
+            fos.write(out.getBytes());
 
-            fw.write(out);
-            fw.close();
-            Log.d("ADDPRESET","File successfully updated:"+(Environment.getExternalStorageDirectory().getPath())+"\\Presets.txt");
+            Log.d("ADDPRESET","File successfully updated:"+outFile.getPath());
         }catch (IOException e)
         {
-            Log.d("ADDPRESET","An error occured when writing preset to file");
+            Log.d("ADDPRESET","An error occured when writing preset to file:"+outFile.getPath());
         }
-
+        finally {
+            try {
+                if (fos != null) {
+                    Log.d("ADDPRESET","Closing File Buffer");
+                    fos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        this.setResult(PRESET_ADDED, new Intent());
         this.finish();
     }
 }

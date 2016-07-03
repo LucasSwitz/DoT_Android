@@ -25,11 +25,16 @@ public class IoTSubscriptionEntry {
         this.val = val;
     }
 
-    public static String rawBytePtrToString(byte[] ptr) {
+    public static String bytePtrToString(byte[] ptr) {
         String s = "";
         for (byte n : ptr) {
             s += String.valueOf(n);
+            s += ",";
         }
+        /**
+         * Removes the last comma
+         */
+        s = s.substring(0,s.length()-2);
         return s;
     }
 
@@ -42,8 +47,56 @@ public class IoTSubscriptionEntry {
         convert[3] = (byte) (i & 0xFF);
 
         return convert;
+    }
 
+    public static byte[] bytePtrFromBoolean(boolean b) {
+        byte convert[] = new byte[1];
 
+        if(b)
+            convert[0] = 1;
+        else
+            convert[0] = 0;
+
+        return convert;
+    }
+
+    public static String stringFromBytesPtr(byte[] bytes)
+    {
+        String s = "";
+
+        for(byte b : bytes)
+        {
+            s+=String.valueOf(b) + ",";
+        }
+        return s;
+    }
+
+    public static byte[] bytePtrFromString(String s)
+    {
+        byte[] out = new byte[s.length()];
+        char[] c = s.toCharArray();
+        for(int i =0; i < c.length; i++)
+        {
+            out[i] = (byte)c[i];
+        }
+        return out;
+    }
+
+    public static byte[] bytePtrFromDeliminatedString(String s)
+    {
+        byte[] out = new byte[s.length()];
+        char[] c = s.toCharArray();
+        String sOut = "";
+        for(int i =0; i < c.length; i++)
+        {
+            if(c[i] == ',')
+            {
+                out[i] = Byte.parseByte(sOut);
+            }
+
+            sOut +=c;
+        }
+        return out;
     }
 
     protected void lock() {
@@ -110,7 +163,7 @@ public class IoTSubscriptionEntry {
             case BOOLEAN:
                 return getValAsBool();
             default:
-                return rawBytePtrToString(val);
+                return bytePtrToString(val);
         }
     }
 
@@ -128,9 +181,15 @@ public class IoTSubscriptionEntry {
         }
     }
 
-    protected void update(SubscriptionDescription d) {
+    public void update(SubscriptionDescription d) {
         if (d.type != getDescription().type) {
             getDescription().type = d.type;
+        }
+    }
+
+    public void updateType(SubscriptionDescription.SubscriptionType t) {
+        if (t != getDescription().type) {
+            getDescription().type = t;
         }
     }
 
