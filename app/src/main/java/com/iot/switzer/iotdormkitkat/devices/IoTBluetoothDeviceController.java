@@ -4,8 +4,8 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.util.Log;
 
-import com.iot.switzer.iotdormkitkat.data.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,21 +13,24 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.UUID;
 
+interface AsyncBluetoothReaderListener {
+    void onPacket(byte[] data);
+}
+
 /**
  * Created by Administrator on 6/20/2016.
  */
 public class IoTBluetoothDeviceController extends IoTDeviceController implements AsyncBluetoothReaderListener {
+    public static final UUID DEFAULT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    AsyncBluetoothReader reader;
     private BluetoothDevice bthDevice;
     private BluetoothSocket socket;
     private OutputStream os;
-    AsyncBluetoothReader reader;
     private boolean ready = false;
 
-    public static final UUID DEFAULT_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
-    public IoTBluetoothDeviceController(IoTDeviceController.DeviceDescription desc, BluetoothDevice bthDevice,BluetoothSocket socket) {
+    public IoTBluetoothDeviceController(IoTDeviceController.DeviceDescription desc, BluetoothDevice bthDevice, BluetoothSocket socket) {
         super(desc);
-        Log.d("CHECK","HERE:"+getDeviceDescription().identifer);
+        Log.d("CHECK", "HERE:" + getDeviceDescription().identifer);
         this.socket = socket;
         this.bthDevice = bthDevice;
 
@@ -35,27 +38,30 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
             if (!socket.isConnected()) {
 
                 socket.connect();
-                Log.d(getDeviceDescription().token,"Connected:"+getDeviceDescription().identifer);
-            }
-            else
-            {
-                Log.d(getDeviceDescription().token,"Already Connected:"+getDeviceDescription().identifer);
+                Log.d(getDeviceDescription().token, "Connected:" + getDeviceDescription().identifer);
+            } else {
+                Log.d(getDeviceDescription().token, "Already Connected:" + getDeviceDescription().identifer);
             }
             os = socket.getOutputStream();
             reader = new AsyncBluetoothReader(socket.getInputStream());
             reader.setListener(this);
             (new Thread(reader)).start();
+        } catch (IOException e1) {
+            Log.d("DEVICE", "Not Connected:" + getDeviceDescription().identifer);
+            e1.printStackTrace();
         }
-                catch (IOException e1) {
-                    Log.d("DEVICE","Not Connected:"+getDeviceDescription().identifer);
-                e1.printStackTrace();
-            }
     }
 
     @Override
     public void write(byte[] out) throws IOException {
+
+        for (int i = 0; i < out.length; i++) {
+            Log.d("OUT", "Writing: " + String.valueOf(out[i]));
+        }
+
         if (socket.isConnected())
             os.write(out);
+        os.flush();
     }
 
     @Override
@@ -70,15 +76,15 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
     }
 
 
-    public boolean isReady()
-    {
+    public boolean isReady() {
         return ready;
     }
 
     @Override
     public void onSubscriptionUpdate(IoTSubscriptionEntry entry) {
         try {
-            writeSubscriptionUpdate(entry);
+            Log.d(getToken(), "Writing to device: " + entry.getKey() + "," + entry.getValAsInt());
+            writeSubscriptionUpdateToDevice(entry);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -92,12 +98,11 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
     @Override
     public void onPacket(byte[] data) {
 
-        switch(data[0] / 16)
-        {
+        switch (data[0] / 16) {
             case HEARTBEAT_HEADER:
                 break;
             case SUBSCRIPTION_HEADER:
-                switch(data[0]) {
+                switch (data[0]) {
                     case SUBSCRIPTION_UPDATE:
                         Log.d(getDeviceDescription().identifer, "Subscription Update!");
                         signalSubscriptionChange(parseSubscriptionUpdate(data));
@@ -106,17 +111,15 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
                 break;
         }
     }
+
     IoTSubscriptionEntry parseSubscriptionUpdate(byte[] data) {
         String key = "";
         byte val[] = null;
         byte buf[] = new byte[256];
         int buf_index = 0;
         int elementIndex = 0;
-
-        Log.d("PACKET", "Data length: " + String.valueOf(data.length));
         for (int i = 1; i < data.length; i++) {
             byte c = data[i];
-            Log.d("PACKET", "Data byte: " + String.valueOf(c));
             switch (c) {
                 case UNI_DELIM:
                     switch (elementIndex) {
@@ -135,8 +138,7 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
                     break;
                 case (char) 10:
                     val = new byte[buf_index];
-                    for (int k = 0; k < buf_index; k++)
-                    {
+                    for (int k = 0; k < buf_index; k++) {
                         val[k] = buf[k];
                     }
 
@@ -155,32 +157,23 @@ public class IoTBluetoothDeviceController extends IoTDeviceController implements
     }
 }
 
-interface AsyncBluetoothReaderListener
-{
-    void onPacket(byte[] data);
-}
-
-class AsyncBluetoothReader implements Runnable
-{
+class AsyncBluetoothReader implements Runnable {
     InputStream is;
     byte packet[];
     int packetSize = 0;
     boolean reading = true;
     AsyncBluetoothReaderListener listener;
 
-    public AsyncBluetoothReader(InputStream is)
-    {
+    public AsyncBluetoothReader(InputStream is) {
         this.is = is;
-        packet = new byte[512];
+        packet = new byte[1024];
     }
 
-    public void setListener(AsyncBluetoothReaderListener listener)
-    {
+    public void setListener(AsyncBluetoothReaderListener listener) {
         this.listener = listener;
     }
 
-    public void stopRead()
-    {
+    public void stopRead() {
         reading = false;
     }
 
@@ -193,7 +186,7 @@ class AsyncBluetoothReader implements Runnable
                 e.printStackTrace();
             }
             Log.d("DEVICE", "Started Listen...");
-            byte[] in = new byte[512];
+            byte[] in = new byte[1024];
             int numOfBytes = 0;
             try {
                 numOfBytes = is.read(in);
@@ -210,7 +203,7 @@ class AsyncBluetoothReader implements Runnable
                 if (in[numOfBytes - 1] == (char) 13) {
                     Log.d("PACKET", "Sending packet to be parsed..");
                     listener.onPacket(packet);
-                    packet = new byte[256];
+                    packet = new byte[1024];
                     packetSize = 0;
 
                 }
