@@ -14,6 +14,7 @@ import com.iot.switzer.iotdormkitkat.data.IoTObserver;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryBooleanController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryIntegerController;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryStringController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 
 import java.util.HashMap;
@@ -54,13 +55,16 @@ public class EntryValueUITable extends TableLayout implements IoTObserver {
                             case CHAR:
                                 break;
                             case STRING:
+                                addRow(entry.getKey(),
+                                        new IoTSubscriptionEntryStringController(getContext(), entry));
                                 break;
                             case BOOLEAN:
                                 addRow(entry.getKey(),
                                         new IoTSubscriptionEntryBooleanController(getContext(), entry));
                                 break;
                             case BYTE_PTR:
-                                //print this as a string?
+                                addRow(entry.getKey(),
+                                        new IoTSubscriptionEntryStringController(getContext(), entry));
                                 break;
                         }
                         break;
@@ -99,9 +103,9 @@ public class EntryValueUITable extends TableLayout implements IoTObserver {
         /*Add new row if row doesn't exist*/
         if (rows.get(entry.getKey()) == null) {
             this.handleUpdate(ADD_ROW, entry);
-        }
 
-        this.handleUpdate(UPDATE_ROW, entry);
+        }
+            this.handleUpdate(UPDATE_ROW, entry);
     }
 
     public <T extends View & IoTUIController> void addRow(String key, T controller) {

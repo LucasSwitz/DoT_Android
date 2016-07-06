@@ -24,6 +24,7 @@ import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.presets.Preset;
 import com.iot.switzer.iotdormkitkat.Constants;
+import com.iot.switzer.iotdormkitkat.presets.PresetManager;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -127,29 +128,7 @@ public class AddPresetActivity extends Activity {
         out+=Preset.PRESET_DELIM;
         out+="\r\n";
 
-        File outFile = new File(getExternalFilesDir(null),Constants.PRESETS_FILE_NAME);
-        FileOutputStream fos = null;
-        try {
-
-            fos = new FileOutputStream(outFile,true);
-            Log.d("ADDPRESET","Out: "+out);
-            fos.write(out.getBytes());
-
-            Log.d("ADDPRESET","File successfully updated:"+outFile.getPath());
-        }catch (IOException e)
-        {
-            Log.d("ADDPRESET","An error occured when writing preset to file:"+outFile.getPath());
-        }
-        finally {
-            try {
-                if (fos != null) {
-                    Log.d("ADDPRESET","Closing File Buffer");
-                    fos.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        PresetManager.getInstance().writePreset(out);
         this.setResult(PRESET_ADDED, new Intent());
         this.finish();
     }

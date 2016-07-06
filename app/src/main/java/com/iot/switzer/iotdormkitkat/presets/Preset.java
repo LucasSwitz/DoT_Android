@@ -18,7 +18,6 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
         loadFromString(presetString);
     }
 
-
     private void loadFromString(String inString)
     {
         String currentValue = "";
@@ -63,14 +62,14 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
         }
     }
 
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
     public static class PresetEntry {
         public IoTSubscriptionEntry entry;
         public byte[] value;
-        public static final char PRESET_TYPE_DELIM = ':';
+        public static final char PRESET_TYPE_DELIM = '^';
         public static final char PRESET_VALUE_DELIM = '=';
 
         public PresetEntry(IoTSubscriptionEntry e, byte[] value) {

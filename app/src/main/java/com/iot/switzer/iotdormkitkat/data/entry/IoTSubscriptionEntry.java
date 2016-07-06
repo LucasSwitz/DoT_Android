@@ -66,7 +66,7 @@ public class IoTSubscriptionEntry {
 
         for(byte b : bytes)
         {
-            s+=String.valueOf(b) + ",";
+            s+=(char)b;
         }
         return s;
     }
@@ -149,7 +149,13 @@ public class IoTSubscriptionEntry {
     }
 
     public String getValAsString() {
-        return "CHANGEME";
+        String s = "";
+
+        for(byte b : val)
+        {
+            s+=(char)b;
+        }
+        return s;
     }
 
     public Object getValueAsType() {

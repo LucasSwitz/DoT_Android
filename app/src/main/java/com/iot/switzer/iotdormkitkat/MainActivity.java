@@ -13,26 +13,38 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
+import android.widget.Toast;
 
 import com.iot.switzer.iotdormkitkat.activities.AddPresetActivity;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTPresetButton;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
+import com.iot.switzer.iotdormkitkat.music.IoTSpotifyObject;
 import com.iot.switzer.iotdormkitkat.network.IoTManager;
 import com.iot.switzer.iotdormkitkat.presets.Preset;
+import com.iot.switzer.iotdormkitkat.presets.PresetButtonGroup;
+import com.iot.switzer.iotdormkitkat.presets.PresetManager;
 import com.iot.switzer.iotdormkitkat.services.DeviceDiscoveryService;
 import com.iot.switzer.iotdormkitkat.ui.EntryValueUITable;
+import com.spotify.sdk.android.authentication.AuthenticationClient;
+import com.spotify.sdk.android.authentication.AuthenticationRequest;
+import com.spotify.sdk.android.authentication.AuthenticationResponse;
+import com.spotify.sdk.android.player.Config;
+import com.spotify.sdk.android.player.Player;
+import com.spotify.sdk.android.player.Spotify;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
     ViewGroup presetScrollView;
+    private static final int SPOTIFY_REQUEST_CODE = 1337;
+
+    private static final String CLIENT_ID = "08eb8a2785a945ccba2717f4c191131a";
+
+    private static final String REDIRECT_URI = "DotMusicService://callback";
+
+    private IoTSpotifyObject spotifyObject;
+
+    private  PresetButtonGroup bg;
 
     @Override
     protected void onDestroy() {
@@ -40,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         Intent msgIntent = new Intent(this, DeviceDiscoveryService.class);
         stopService(msgIntent);
         IoTManager.getInstance().destroy();
+        spotifyObject.destroy();
     }
 
     @Override
@@ -58,6 +71,8 @@ public class MainActivity extends AppCompatActivity {
             case R.id.add_preset_menu_item:
                 launchAddPresetActivity();
                 return true;
+            case R.id.login_spotify_menu_item:
+                launchSpotifyLogin();
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -67,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        PresetManager.getInstance().setContext(getApplicationContext());
 
         Log.d("START", "Start of program!");
 
@@ -74,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         presetScrollView = (ViewGroup) findViewById(R.id.presetScrollView).findViewById(R.id.presetLinearLayout);
+        bg = new PresetButtonGroup(presetScrollView.getContext());
         loadPresets();
 
 
@@ -90,53 +107,24 @@ public class MainActivity extends AppCompatActivity {
         startService(msgIntent);
     }
 
-
-    void addPreset(Preset p)
+    private void loadPresets()
     {
+        presetScrollView.removeAllViews();
+        bg.reload();
+
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 
         layoutParams.setMargins(20,0,20,0);
 
-        presetScrollView.addView(new IoTPresetButton(getApplicationContext(),p),layoutParams);
-    }
-
-    private void loadPresets()
-    {
-        presetScrollView.removeAllViews();
-        File presetsFile = new File(getExternalFilesDir(null),Constants.PRESETS_FILE_NAME);
-        char in[] = new char[4096];
-        String s = "";
-        int bytesRead;
-        try {
-            BufferedReader bf = new BufferedReader(new FileReader(presetsFile));
-            bytesRead = bf.read(in);
-
-            int index = 0;
-            while(index < bytesRead)
-            {
-                if(in[index] == Preset.PRESET_DELIM)
-                {
-                    addPreset(new Preset(s));
-                    s="";
-                }
-                else
-                {
-                    s+=in[index];
-                }
-                index++;
-            }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+        for(IoTPresetButton p : bg.getButtons())
+        {
+            presetScrollView.addView(p,layoutParams);
         }
     }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data)
     {
-        Log.d("MAIN","Activity return");
         if(requestCode == AddPresetActivity.CREATE_NEW_PRESET)
         {
             if(resultCode == AddPresetActivity.PRESET_ADDED)
@@ -148,6 +136,42 @@ public class MainActivity extends AppCompatActivity {
 
             }
         }
+        else if(requestCode == SPOTIFY_REQUEST_CODE)
+        {
+            AuthenticationResponse response = AuthenticationClient.getResponse(resultCode, data);
+            if (response.getType() == AuthenticationResponse.Type.TOKEN) {
+
+                Config playerConfig = new Config(this, response.getAccessToken(), CLIENT_ID);
+                Player player = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
+                    @Override
+                    public void onInitialized(Player player) {
+                        Toast.makeText(getApplicationContext(),"Spotify Login Successful",Toast.LENGTH_SHORT).show();
+
+                        spotifyObject = new IoTSpotifyObject(player);
+                        IoTVariablesBase.getInstance().addSubscriber(spotifyObject);
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Log.e("MainActivity", "Could not initialize player: " + throwable.getMessage());
+                    }
+                });
+            }
+            else
+            {
+                Log.d("MAINACTIVITY", "No Token: "+response.getType().name() + " "+response.getError());
+            }
+        }
+    }
+
+    private void launchSpotifyLogin()
+    {
+        AuthenticationRequest.Builder builder =
+                new AuthenticationRequest.Builder(CLIENT_ID, AuthenticationResponse.Type.TOKEN, REDIRECT_URI);
+        builder.setScopes(new String[]{"user-read-private", "streaming"});
+        AuthenticationRequest request = builder.build();
+
+        AuthenticationClient.openLoginActivity(this, SPOTIFY_REQUEST_CODE, request);
     }
 
     private void launchAddPresetActivity()
