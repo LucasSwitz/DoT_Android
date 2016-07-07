@@ -2,10 +2,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/discover_devices_menu_item"
-    android:title="@string/discover_devices_menu_item_title" />
+        android:title="@string/discover_devices_menu_item_title" />
     <item
         android:id="@+id/add_preset_menu_item"
         android:title="@string/add_preset_menu_item_title" />
+    <item
+        android:id="@+id/edit_presets_menu_item"
+        android:title="@string/edit_presets_menu_item_title" />
     <item
         android:id="@+id/login_spotify_menu_item"
         android:title="@string/login_spotify_menu_item_title" />

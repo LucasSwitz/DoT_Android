@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Button"
+            android:id="@+id/deviceButton"
+            android:textColor="#ffffff"
+            android:background="#000000"
+            android:gravity="center_vertical"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:paddingLeft="20dp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:id="@+id/entryScrollView"
+            android:fillViewport="false"
+            android:padding="10dp"
+            android:layout_below="@+id/deviceButton"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true">
+
+        </ScrollView>
+</LinearLayout>

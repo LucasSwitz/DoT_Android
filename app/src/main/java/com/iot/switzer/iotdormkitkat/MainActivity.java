@@ -1,14 +1,17 @@
 package com.iot.switzer.iotdormkitkat;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -16,6 +19,7 @@ import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.iot.switzer.iotdormkitkat.activities.AddPresetActivity;
+import com.iot.switzer.iotdormkitkat.activities.EditPresetsActivity;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTPresetButton;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
@@ -25,6 +29,7 @@ import com.iot.switzer.iotdormkitkat.presets.Preset;
 import com.iot.switzer.iotdormkitkat.presets.PresetButtonGroup;
 import com.iot.switzer.iotdormkitkat.presets.PresetManager;
 import com.iot.switzer.iotdormkitkat.services.DeviceDiscoveryService;
+import com.iot.switzer.iotdormkitkat.ui.DeviceUITable;
 import com.iot.switzer.iotdormkitkat.ui.EntryValueUITable;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
@@ -49,10 +54,13 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
         Intent msgIntent = new Intent(this, DeviceDiscoveryService.class);
         stopService(msgIntent);
         IoTManager.getInstance().destroy();
-        spotifyObject.destroy();
+
+        if(spotifyObject != null)
+            spotifyObject.destroy();
     }
 
     @Override
@@ -73,6 +81,10 @@ public class MainActivity extends AppCompatActivity{
                 return true;
             case R.id.login_spotify_menu_item:
                 launchSpotifyLogin();
+                return true;
+            case R.id.edit_presets_menu_item:
+                launchEditPresetsActivity();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -81,13 +93,15 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         PresetManager.getInstance().setContext(getApplicationContext());
 
         Log.d("START", "Start of program!");
 
         startDiscoveryService();
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
+        setSupportActionBar(toolbar);
 
         presetScrollView = (ViewGroup) findViewById(R.id.presetScrollView).findViewById(R.id.presetLinearLayout);
         bg = new PresetButtonGroup(presetScrollView.getContext());
@@ -96,8 +110,9 @@ public class MainActivity extends AppCompatActivity{
 
         ViewGroup layout = (ViewGroup) findViewById(R.id.main_layout);
         ScrollView scrollingView = (ScrollView) layout.findViewById(R.id.tableScrollView);
-        EntryValueUITable table = new EntryValueUITable(scrollingView.getContext());
-        IoTVariablesBase.getInstance().addObserver(table);
+
+        DeviceUITable table = new DeviceUITable(scrollingView.getContext());
+        IoTManager.getInstance().addListener(table);
         scrollingView.addView(table);
     }
 
@@ -147,8 +162,8 @@ public class MainActivity extends AppCompatActivity{
                     public void onInitialized(Player player) {
                         Toast.makeText(getApplicationContext(),"Spotify Login Successful",Toast.LENGTH_SHORT).show();
 
-                        spotifyObject = new IoTSpotifyObject(player);
-                        IoTVariablesBase.getInstance().addSubscriber(spotifyObject);
+                        spotifyObject = new IoTSpotifyObject(player, "Spotify Player");
+                       IoTManager.getInstance().addDevice(spotifyObject);
                     }
 
                     @Override
@@ -160,6 +175,13 @@ public class MainActivity extends AppCompatActivity{
             else
             {
                 Log.d("MAINACTIVITY", "No Token: "+response.getType().name() + " "+response.getError());
+            }
+        }
+        else if(requestCode == EditPresetsActivity.EDIT_PRESETS)
+        {
+            if(resultCode == EditPresetsActivity.PRESETS_EDITED)
+            {
+                loadPresets();
             }
         }
     }
@@ -178,6 +200,12 @@ public class MainActivity extends AppCompatActivity{
     {
         Intent intent = new Intent(this, AddPresetActivity.class);
         startActivityForResult(intent,AddPresetActivity.CREATE_NEW_PRESET);
+    }
+
+    private void launchEditPresetsActivity()
+    {
+        Intent intent = new Intent(this, EditPresetsActivity.class);
+        startActivityForResult(intent,EditPresetsActivity.EDIT_PRESETS);
     }
 }
 

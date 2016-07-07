@@ -13,6 +13,8 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
 
     private String name = "";
     public static final char PRESET_DELIM = '~';
+    public static final char PRESET_NAME_DELIM = '/';
+
 
     public Preset(String presetString) {
         loadFromString(presetString);
@@ -21,28 +23,32 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
     private void loadFromString(String inString)
     {
         String currentValue = "";
-        SubscriptionDescription.SubscriptionType type = SubscriptionDescription.SubscriptionType.BYTE_PTR;
+        SubscriptionDescription.SubscriptionType type = null;
         String entryName ="";
-        byte[] value;
+        byte[] value  = null;
         for(char c : inString.toCharArray())
         {
-            switch (c)
-            {
-                case PresetEntry.PRESET_TYPE_DELIM:
-                    type = SubscriptionDescription.SubscriptionType.fromInt(Integer.parseInt(currentValue));
-                    currentValue = "";
-                    break;
-                case PresetEntry.PRESET_VALUE_DELIM:
-                    entryName = currentValue;
-                    currentValue = "";
-                    break;
-                case '\n':
-                    if(name.equals(""))
-                    {
+            switch (c) {
+                case PRESET_NAME_DELIM:
+                    if (name.isEmpty()) {
                         name = currentValue;
+                        currentValue = "";
+                        break;
                     }
-                    else
-                    {
+                case PresetEntry.PRESET_ENTRY_TYPE_DELIM:
+                    if (type == null) {
+                        type = SubscriptionDescription.SubscriptionType.fromInt(Integer.parseInt(currentValue));
+                        currentValue = "";
+                        break;
+                    }
+                case PresetEntry.PRESET_ENTRY_VALUE_DELIM:
+                    if(entryName.isEmpty()) {
+                        entryName = currentValue;
+                        currentValue = "";
+                        break;
+                    }
+                case PresetEntry.PRESET_ENTRY_DELIM:
+                    if(value == null) {
                         value = IoTSubscriptionEntry.bytePtrFromString(currentValue);
                         /**
                          * This should ask the variables base for this SubscriptionEntry (create it if
@@ -51,10 +57,11 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
                         PresetEntry e = new PresetEntry(IoTVariablesBase.getInstance().get(entryName), value);
                         e.entry.updateType(type);
                         add(e);
+                        currentValue = "";
+                        break;
                     }
-                    currentValue = "";
-                    break;
                 case '\r':
+                case '\n':
                     break;
                 default:
                     currentValue+=c;
@@ -69,8 +76,9 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
     public static class PresetEntry {
         public IoTSubscriptionEntry entry;
         public byte[] value;
-        public static final char PRESET_TYPE_DELIM = '^';
-        public static final char PRESET_VALUE_DELIM = '=';
+        public static final char PRESET_ENTRY_TYPE_DELIM = '|';
+        public static final char PRESET_ENTRY_VALUE_DELIM = '=';
+        public static final char PRESET_ENTRY_DELIM = '$';
 
         public PresetEntry(IoTSubscriptionEntry e, byte[] value) {
             this.entry = e;
@@ -79,19 +87,19 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
 
         public String toExportString()
         {
-            String out = String.valueOf(SubscriptionDescription.SubscriptionType.asInt(entry.getDescription().type)) + PRESET_TYPE_DELIM
-                    + entry.getKey() + PRESET_VALUE_DELIM
+            String out = String.valueOf(SubscriptionDescription.SubscriptionType.asInt(entry.getDescription().type)) + PRESET_ENTRY_TYPE_DELIM
+                    + entry.getKey() + PRESET_ENTRY_VALUE_DELIM
                     + String.valueOf(entry.getValueAsType())
-                    + '\n';
+                    + PRESET_ENTRY_DELIM;
             return out;
         }
 
         public static String toExportString(String key, SubscriptionDescription.SubscriptionType type,String val)
         {
-            String out = String.valueOf(SubscriptionDescription.SubscriptionType.asInt(type)) + PRESET_TYPE_DELIM
-                    + key + PRESET_VALUE_DELIM
+            String out = String.valueOf(SubscriptionDescription.SubscriptionType.asInt(type)) + PRESET_ENTRY_TYPE_DELIM
+                    + key + PRESET_ENTRY_VALUE_DELIM
                     + val
-                    + '\n';
+                    + PRESET_ENTRY_DELIM;
 
             return out;
         }

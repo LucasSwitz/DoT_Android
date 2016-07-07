@@ -5,6 +5,7 @@ import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceListener;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
@@ -14,9 +15,11 @@ import java.util.HashMap;
 public class IoTManager implements IoTDeviceListener {
     static private IoTManager instance = null;
     private HashMap<String, IoTDeviceController> devices;
+    private ArrayList<IoTNetworkListener> listeners;
 
     private IoTManager() {
         devices = new HashMap<>();
+        listeners = new ArrayList<>();
     }
 
     static public IoTManager getInstance() {
@@ -26,10 +29,25 @@ public class IoTManager implements IoTDeviceListener {
         return instance;
     }
 
+    public void addListener(IoTNetworkListener listener)
+    {
+        listeners.add(listener);
+    }
+
     public void addDevice(IoTDeviceController device) {
         devices.put(device.getToken(), device);
         device.addListener(this);
         IoTVariablesBase.getInstance().addSubscriber(device);
+
+        signalDeviceAdd(device);
+    }
+
+    protected void signalDeviceAdd(IoTDeviceController d)
+    {
+        for(IoTNetworkListener l : listeners)
+        {
+            l.onDeviceAdd(d);
+        }
     }
 
     public Collection<IoTDeviceController> getLiveDevices() {

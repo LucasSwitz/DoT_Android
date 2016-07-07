@@ -1,16 +1,19 @@
 package com.iot.switzer.iotdormkitkat.ui;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.View;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
+
 /**
  * Created by Lucas Switzer on 6/25/2016.
  */
 
-public class EntryRow<T extends View & IoTUIController> extends TableRow implements View.OnLongClickListener {
+public class EntryRow<T extends IoTUIController> extends TableRow implements View.OnLongClickListener {
     private TextView title;
     private T controller;
     private boolean userControlled = false;
@@ -26,12 +29,14 @@ public class EntryRow<T extends View & IoTUIController> extends TableRow impleme
         this.title = new TextView(context);
         this.title.setText(title);
         this.title.setPadding(0, 0, dp(scale, 10), dp(scale, 40));
-        this.title.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            this.title.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);
+        }
         this.addView(this.title);
 
         this.controller = controller;
 
-        this.addView(controller);
+        this.addView(controller.getView());
 
         this.setLongClickable(true);
         this.setOnLongClickListener(this);

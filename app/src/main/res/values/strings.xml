@@ -1,6 +1,8 @@
 <resources>
-    <string name="app_name">IoT Dorm</string>
+    <string name="app_name">DoT</string>
     <string name="discover_devices_menu_item_title">Discover Devices</string>
     <string name="add_preset_menu_item_title">Add Preset</string>
+    <string name="edit_presets_menu_item_title">Edit Presets</string>
+    <string name="delete_preset_menu_item_title">Delete</string>
     <string name="login_spotify_menu_item_title">Spotify Login</string>
 </resources>
