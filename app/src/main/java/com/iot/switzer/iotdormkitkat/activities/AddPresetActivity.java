@@ -55,6 +55,16 @@ public class AddPresetActivity extends Activity {
 
         Button finishButton = (Button) this.findViewById(R.id.exportPresetButton);
 
+        Button cancelButton = (Button) this.findViewById(R.id.cancelButton);
+
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(PRESET_ADDED,new Intent());
+                finish();
+            }
+        });
+
         finishButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -96,7 +106,7 @@ public class AddPresetActivity extends Activity {
         }
 
         String out = presetName;
-        out+="\r\n";
+        out+=Preset.PRESET_NAME_DELIM;
         boolean verfied = true;
 
         for(AddPresetRow row: table) {

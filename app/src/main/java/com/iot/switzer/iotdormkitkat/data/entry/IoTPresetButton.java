@@ -3,39 +3,20 @@ package com.iot.switzer.iotdormkitkat.data.entry;
 import android.content.Context;
 import android.graphics.Color;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
-import com.iot.switzer.iotdormkitkat.data.IoTContributor;
 import com.iot.switzer.iotdormkitkat.presets.Preset;
+import com.iot.switzer.iotdormkitkat.ui.IoTPresetModel;
 
 /**
  * Created by Lucas Switzer on 6/29/2016.
  */
-public class IoTPresetButton extends Button{
-    private Preset preset;
+public class IoTPresetButton extends IoTPresetModel{
     private boolean presetEnabled = false;
-    private int color;
-    private static final int MAX_COLOR = 16777215;
 
     public IoTPresetButton(Context context, Preset p) {
-        super(context);
-        this.preset = p;
-        this.setText(preset.getName());
-        color = colorFromName(preset.getName());
-        this.setBackgroundColor(color);
-        Log.d("COLOR",String.valueOf((Color.rgb(0,0,0))));
+        super(context,p);
 
-    }
-
-    public static int colorFromName(String name)
-    {
-        return -(name.hashCode() % MAX_COLOR);
-    }
-    public final Preset getPreset()
-    {
-        return preset;
     }
 
     public boolean isPresetEnabled()
@@ -46,28 +27,29 @@ public class IoTPresetButton extends Button{
     public void toggle()
     {
         if(presetEnabled)
-            disable();
+            disablePreset();
         else
-            enable();
+            enablePreset();
     }
 
-    public void enable()
+    public void enablePreset()
     {
         for (Preset.PresetEntry e : preset) {
             e.entry.setVal(e.value);
             e.entry.lock();
         }
         presetEnabled = true;
-        this.setBackgroundColor(Color.GREEN);
+        setActiveState(true);
+
     }
 
-    public void disable()
+    public void disablePreset()
     {
         for (Preset.PresetEntry e : preset) {
             e.entry.setVal(new byte[]{0, 0, 0, 0});
             e.entry.unlock();
         }
         presetEnabled = false;
-        this.setBackgroundColor(color);
+        setActiveState(false);
     }
 }

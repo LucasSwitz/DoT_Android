@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+
     package="com.iot.switzer.iotdormkitkat"
     android:installLocation="preferExternal"
     >
@@ -14,7 +15,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/CustomStyle">
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,6 +27,15 @@
         <activity
             android:name="com.spotify.sdk.android.authentication.LoginActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+
+        <activity
+            android:name="com.iot.switzer.iotdormkitkat.activities.EditPresetsActivity"
+            android:label="@string/edit_presets_menu_item_title"
+            android:parentActivityName="com.iot.switzer.iotdormkitkat.MainActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value="com.iot.switzer.iotdormkitkat.MainActivity" />
+        </activity>>
 
         <activity
             android:name="com.iot.switzer.iotdormkitkat.activities.AddPresetActivity"

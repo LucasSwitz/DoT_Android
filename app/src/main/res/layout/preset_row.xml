@@ -13,7 +13,8 @@
             android:layout_weight="1"
             android:maxLines = "1"
             android:imeOptions="actionDone"
-            android:inputType="textPersonName"/>
+            android:inputType="textPersonName"
+            android:textColor="#000000"/>
 
         <Spinner
             android:id="@+id/entryType"
@@ -22,6 +23,7 @@
             android:layout_weight="1"
             android:textAlignment="center"
             android:spinnerMode="dropdown"
+            android:popupBackground="#FFFFFF"
             />
 
 
@@ -34,5 +36,6 @@
             android:maxLines = "1"
             android:imeOptions="actionDone"
             android:inputType="textPersonName"
+            android:textColor="#000000"
             />
 </TableRow>

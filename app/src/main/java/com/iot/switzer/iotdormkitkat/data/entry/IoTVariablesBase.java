@@ -169,12 +169,12 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
     }
 
     @Override
-    public void enable() {
+    public void enablePreset() {
 
     }
 
     @Override
-    public void disable() {
+    public void disablePreset() {
 
     }
 }*/

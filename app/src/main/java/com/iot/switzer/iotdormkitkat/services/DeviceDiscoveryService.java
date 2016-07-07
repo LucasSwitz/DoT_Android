@@ -84,8 +84,8 @@ public class DeviceDiscoveryService extends Service implements Runnable {
     @Override
     public void onDestroy() {
         Log.d("DISCOVERY", "On Destroy!");
-        super.onDestroy();
         stop();
+        super.onDestroy();
     }
 
     @Override
@@ -157,7 +157,7 @@ class HandshakeService implements Runnable, HandshakeListener {
             handshakeThread.start();
 
             try {
-                os.write(IoTDeviceController.HANDSHAKE_REQUEST);
+                os.write(IoTBluetoothDeviceController.packet(IoTDeviceController.HANDSHAKE_REQUEST,new byte[]{}));
             } catch (IOException e) {
                 Log.d("DISCOVERY", device.getAddress() + ": Unabled to write handshake.");
             }
@@ -213,7 +213,7 @@ class HandshakeService implements Runnable, HandshakeListener {
                     Log.d("DISCOVERY", "Adding Device with token,address: " + desc.token + ',' + desc.identifer);
                     try {
                         OutputStream os = socket.getOutputStream();
-                        os.write(IoTDeviceController.HANDSHAKE_RETURN);
+                        os.write(IoTBluetoothDeviceController.packet(IoTDeviceController.HANDSHAKE_RETURN,new byte[]{}));
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

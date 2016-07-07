@@ -9,10 +9,12 @@ import com.google.android.gms.wearable.DataEventBuffer;
 import com.iot.switzer.iotdormkitkat.Constants;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -22,30 +24,64 @@ import java.util.ArrayList;
 public class PresetManager extends ArrayList<Preset>{
     private static PresetManager instance;
     private Context context;
+    File presetsFile;
 
     public void writePreset(String out)
     {
-        File outFile = new File(context.getExternalFilesDir(null), Constants.PRESETS_FILE_NAME);
         FileOutputStream fos = null;
         try {
 
-            fos = new FileOutputStream(outFile,true);
-            Log.d("ADDPRESET","Out: "+out);
+            fos = new FileOutputStream(presetsFile,true);
             fos.write(out.getBytes());
 
-            Log.d("ADDPRESET","File successfully updated:"+outFile.getPath());
+            Log.d("ADDPRESET","File successfully updated:"+presetsFile.getPath());
         }catch (IOException e)
         {
-            Log.d("ADDPRESET","An error occured when writing preset to file:"+outFile.getPath());
+            Log.d("ADDPRESET","An error occured when writing preset to file:"+presetsFile.getPath());
         }
         finally {
             try {
                 if (fos != null) {
-                    Log.d("ADDPRESET","Closing File Buffer");
                     fos.close();
                 }
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+    }
+
+    public void deletePreset(Preset p) throws IOException {
+
+        if (this.size() > 0) {
+
+            File tempFile = new File(presetsFile.getParentFile().getPath(),"tmpPreset.txt");
+
+            BufferedReader reader = new BufferedReader(new FileReader(presetsFile));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+            int deleteIndex;
+
+            for (deleteIndex = 0; deleteIndex < this.size(); deleteIndex++) {
+                if (get(deleteIndex) == p) {
+                    break;
+                }
+
+            }
+            Log.d("PRESETSMANAGER","Delete Index:"+String.valueOf(deleteIndex));
+
+            String readLine = "";
+            int i = 0;
+            if (deleteIndex < this.size()) {
+                while ((readLine = reader.readLine()) != null) {
+                    if (i != deleteIndex) {
+                        writer.write(readLine);
+                    }
+                    i++;
+                }
+
+                writer.close();
+                reader.close();
+
+                tempFile.renameTo(presetsFile);
             }
         }
     }
@@ -59,6 +95,7 @@ public class PresetManager extends ArrayList<Preset>{
     public void setContext(Context c)
     {
         this.context = c;
+        presetsFile = new File(c.getExternalFilesDir(null), Constants.PRESETS_FILE_NAME);
     }
 
     protected void loadFromFile()
@@ -103,6 +140,6 @@ public class PresetManager extends ArrayList<Preset>{
     
     private PresetManager()
     {
-        
+
     }
 }

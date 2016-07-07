@@ -79,7 +79,6 @@ public class PresetButtonGroup implements Button.OnClickListener,
         sendUpdate(b.getPreset().getName(),b.isPresetEnabled());
     }
 
-
     @Override
     public void onClick(View v) {
         sendUpdate(((IoTPresetButton)v).getPreset().getName(),!((IoTPresetButton)v).isPresetEnabled());
@@ -117,11 +116,11 @@ public class PresetButtonGroup implements Button.OnClickListener,
                         Log.d("WEARABLE", "Key:"+key);
                         boolean enabled = dataMap.getBoolean(key);
                         if(enabled) {
-                            buttonMap.get(key).enable();
+                            buttonMap.get(key).enablePreset();
                             Log.d("WEARABLE","Enabling");
                         }
                         else {
-                            buttonMap.get(key).disable();
+                            buttonMap.get(key).disablePreset();
                             Log.d("WEARABLE","Disabling");
                         }
                     }
