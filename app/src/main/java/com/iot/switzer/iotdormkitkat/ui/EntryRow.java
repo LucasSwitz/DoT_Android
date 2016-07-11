@@ -13,12 +13,12 @@ import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
  * Created by Lucas Switzer on 6/25/2016.
  */
 
-public class EntryRow<T extends IoTUIController> extends TableRow implements View.OnLongClickListener {
+public class EntryRow extends TableRow implements View.OnLongClickListener {
     private TextView title;
-    private T controller;
+    private IoTUIController controller;
     private boolean userControlled = false;
 
-    public EntryRow(Context context, String title, T controller) {
+    public EntryRow(Context context, String title, IoTUIController controller) {
         super(context);
 
         final float scale = getContext().getResources().getDisplayMetrics().density;

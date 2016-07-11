@@ -107,7 +107,7 @@ public class EntryValueUITable extends TableLayout implements IoTUIController.Io
             this.handleUpdate(UPDATE_ROW, entry);
     }
 
-    public <T extends IoTUIController> void addRow(String key, T controller) {
+    public void addRow(String key, IoTUIController controller) {
         EntryRow row = new EntryRow(getContext(), key, controller);
         IoTVariablesBase.getInstance().addSubscriber(controller);
 
