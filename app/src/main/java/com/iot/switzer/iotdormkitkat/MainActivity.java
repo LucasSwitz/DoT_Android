@@ -1,6 +1,7 @@
 package com.iot.switzer.iotdormkitkat;
 
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -40,7 +42,7 @@ import com.spotify.sdk.android.player.Spotify;
 
 public class MainActivity extends AppCompatActivity{
 
-    ViewGroup presetScrollView;
+    private ViewGroup presetScrollView;
     private static final int SPOTIFY_REQUEST_CODE = 1337;
 
     private static final String CLIENT_ID = "08eb8a2785a945ccba2717f4c191131a";
@@ -97,7 +99,6 @@ public class MainActivity extends AppCompatActivity{
 
         Log.d("START", "Start of program!");
 
-        startDiscoveryService();
         setContentView(R.layout.activity_main);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.main_toolbar);
@@ -107,19 +108,18 @@ public class MainActivity extends AppCompatActivity{
         bg = new PresetButtonGroup(presetScrollView.getContext());
         loadPresets();
 
-
         ViewGroup layout = (ViewGroup) findViewById(R.id.main_layout);
-        ScrollView scrollingView = (ScrollView) layout.findViewById(R.id.tableScrollView);
+        ScrollView tableScrollView = (ScrollView) layout.findViewById(R.id.tableScrollView);
 
-        DeviceUITable table = new DeviceUITable(scrollingView.getContext());
+        DeviceUITable table = new DeviceUITable(tableScrollView.getContext());
         IoTManager.getInstance().addListener(table);
-        scrollingView.addView(table);
+        tableScrollView.addView(table);
+
+        startDiscoveryService();
     }
 
     private void startDiscoveryService() {
-        Intent msgIntent = new Intent(this, DeviceDiscoveryService.class);
-        msgIntent.putExtra(DeviceDiscoveryService.PARAM_IN_MSG, "START");
-        startService(msgIntent);
+        IoTManager.getInstance().searchForDevices(this);
     }
 
     private void loadPresets()

@@ -1,9 +1,13 @@
 package com.iot.switzer.iotdormkitkat.network;
 
+import android.app.Activity;
+import android.content.Intent;
+
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceListener;
+import com.iot.switzer.iotdormkitkat.services.DeviceDiscoveryService;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +20,12 @@ public class IoTManager implements IoTDeviceListener {
     static private IoTManager instance = null;
     private HashMap<String, IoTDeviceController> devices;
     private ArrayList<IoTNetworkListener> listeners;
+
+    public enum NetworkState
+    {
+        SEARCHING,
+        ALIVE
+    }
 
     private IoTManager() {
         devices = new HashMap<>();
@@ -54,7 +64,22 @@ public class IoTManager implements IoTDeviceListener {
         return devices.values();
     }
 
+    public void searchForDevices(Activity a)
+    {
+        Intent msgIntent = new Intent(a, DeviceDiscoveryService.class);
+        msgIntent.putExtra(DeviceDiscoveryService.PARAM_IN_MSG, "START");
+        a.startService(msgIntent);
 
+        setState(NetworkState.SEARCHING);
+    }
+
+    protected void setState(NetworkState state)
+    {
+        for(IoTNetworkListener listener : listeners)
+        {
+            listener.onNetworkMasterStateChange(state);
+        }
+    }
     public void destroy() {
         for (IoTDeviceController deviceController : devices.values()) {
             deviceController.stop();

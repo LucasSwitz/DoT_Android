@@ -8,4 +8,6 @@ import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 public interface IoTNetworkListener {
 
     void onDeviceAdd(IoTDeviceController d);
+
+    void onNetworkMasterStateChange(IoTManager.NetworkState state);
 }

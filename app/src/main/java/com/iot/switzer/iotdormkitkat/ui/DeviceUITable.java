@@ -2,6 +2,10 @@ package com.iot.switzer.iotdormkitkat.ui;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +17,7 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 
+import com.iot.switzer.iotdormkitkat.MainActivity;
 import com.iot.switzer.iotdormkitkat.R;
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
@@ -20,6 +25,7 @@ import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
+import com.iot.switzer.iotdormkitkat.network.IoTManager;
 import com.iot.switzer.iotdormkitkat.network.IoTNetworkListener;
 
 import java.util.HashMap;
@@ -36,6 +42,40 @@ public class DeviceUITable extends TableLayout implements IoTNetworkListener{
         super(context);
         this.setColumnStretchable(0,true);
         deviceBlocks = new HashMap<>();
+    }
+
+    public void displaySearchingState()
+    {
+        Drawable background = ContextCompat.getDrawable(getContext(),R.drawable.dot_launcher);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            this.setBackground(background);
+        }
+        else
+        {
+            /**
+             * Add a text view with starting state.
+             */
+        }
+    }
+
+    public void displayAliveState()
+    {
+
+    }
+
+    @Override
+    public void onNetworkMasterStateChange(IoTManager.NetworkState state)
+    {
+        switch(state)
+        {
+
+            case SEARCHING:
+                displaySearchingState();
+                break;
+            case ALIVE:
+                displayAliveState();
+                break;
+        }
     }
 
     public void add(DeviceBlock db)
