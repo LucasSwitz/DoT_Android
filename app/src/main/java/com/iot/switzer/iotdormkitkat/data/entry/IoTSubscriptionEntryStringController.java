@@ -1,10 +1,8 @@
-package com.iot.switzer.iotdormkitkat.ui.contollers;
+package com.iot.switzer.iotdormkitkat.data.entry;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.EditText;
 
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
@@ -14,23 +12,23 @@ import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
  */
 public class IoTSubscriptionEntryStringController extends IoTUIController {
     private String value;
-    private TextView textView;
+    private EditText editText;
 
 
     public IoTSubscriptionEntryStringController(Context context,IoTSubscriptionEntry e) {
         super(context,e);
-        textView = new TextView(context);
+        editText = new EditText(context);
         disable();
     }
 
     @Override
     public void postValue() {
-        textView.setText(value);
+        editText.setText(value);
     }
 
     @Override
     public View getView() {
-        return textView;
+        return editText;
     }
 
     @Override

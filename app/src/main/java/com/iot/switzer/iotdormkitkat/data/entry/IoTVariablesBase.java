@@ -72,7 +72,7 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
             /**
              *  If subscription entry does not exists yet, add it with default value.
              */
-            if (get(d.key) == null) {
+            if (super.get(d.key) == null) {
                 Log.d("DATABASE", "Adding New Entry based on Sub: " + d.key);
                 addEntry(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
             } else {

@@ -9,5 +9,7 @@ public interface IoTNetworkListener {
 
     void onDeviceAdd(IoTDeviceController d);
 
-    void onNetworkMasterStateChange(IoTManager.NetworkState state);
+    void onNetworkStateChange(IoTNetworkStateData data);
 }
+
+

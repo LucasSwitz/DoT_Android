@@ -1,5 +1,7 @@
 package com.iot.switzer.iotdormkitkat.presets;
 
+import android.util.Log;
+
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
@@ -56,8 +58,13 @@ public class Preset extends ArrayList<Preset.PresetEntry> {
                          */
                         PresetEntry e = new PresetEntry(IoTVariablesBase.getInstance().get(entryName), value);
                         e.entry.updateType(type);
+                        Log.d("PRESET","Added new entry to Preset: "+name + ","+entryName);
                         add(e);
                         currentValue = "";
+
+                        value = null;
+                        type = null;
+                        entryName = "";
                         break;
                     }
                 case '\r':

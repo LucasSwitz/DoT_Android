@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/IoTDormKitKat.iml" filepath="$PROJECT_DIR$/IoTDormKitKat.iml" />
+      <module fileurl="file://$PROJECT_DIR$/DoT_Android.iml" filepath="$PROJECT_DIR$/DoT_Android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

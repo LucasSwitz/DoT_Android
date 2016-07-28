@@ -1,4 +1,4 @@
-package com.iot.switzer.iotdormkitkat.ui.contollers;
+package com.iot.switzer.iotdormkitkat.data.entry;
 
 import android.content.Context;
 import android.view.View;

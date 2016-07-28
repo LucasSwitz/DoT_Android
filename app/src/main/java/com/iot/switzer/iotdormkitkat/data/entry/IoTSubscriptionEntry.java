@@ -1,5 +1,7 @@
 package com.iot.switzer.iotdormkitkat.data.entry;
 
+import android.util.Log;
+
 import com.iot.switzer.iotdormkitkat.data.IoTEntryListener;
 import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 
@@ -9,7 +11,7 @@ import java.util.Arrays;
  * Created by Administrator on 6/20/2016.
  */
 public class IoTSubscriptionEntry {
-    boolean locked;
+    boolean locked = false;
     private SubscriptionDescription description;
     private byte[] val;
     private byte[] lastVal;
@@ -120,6 +122,8 @@ public class IoTSubscriptionEntry {
     }
 
     protected void setVal(byte[] val) {
+        Log.d("ENTRY","Setting value");
+
         lastVal = this.val;
         this.val = val;
         signalListener();

@@ -30,7 +30,8 @@ public class DeviceDiscoveryService extends Service implements Runnable {
     public static final String PARAM_IN_MSG = "com.iot.switzer.dormiot.param_n_msg";
     private static final int HANDSHAKE_TIMEOUT = 5;
     private boolean finding = false;
-    private int discoveryPeriod = 30;
+    public static final int discoveryPeriod = 30;
+    private long currentRunTime = 0;
 
     private BluetoothAdapter bthAdapter;
 
@@ -48,13 +49,14 @@ public class DeviceDiscoveryService extends Service implements Runnable {
         long start = System.currentTimeMillis();
         Log.d("DISCOVERY", "Started find for: " + String.valueOf(discoveryPeriod) + " seconds.");
         finding = true;
-        while (finding && ((System.currentTimeMillis() - start) / 1000) < discoveryPeriod) {
+        while (currentRunTime < discoveryPeriod) {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
+            currentRunTime = ((System.currentTimeMillis() - start) / 1000);
             Set<BluetoothDevice> pairedDevices = bthAdapter.getBondedDevices();
             if (pairedDevices.size() > 0) {
                 for (BluetoothDevice device : pairedDevices) {
@@ -67,13 +69,18 @@ public class DeviceDiscoveryService extends Service implements Runnable {
                     }
                     if (!match) {
                         HandshakeService s = new HandshakeService(device, HANDSHAKE_TIMEOUT);
-                        new Thread(s).start();
+                        s.run();
                     }
                 }
             }
         }
         this.stopSelf();
     }
+
+    public long getCurrentRunTimSeconds() {
+        return currentRunTime;
+    }
+
 
     @Override
     public void onCreate() {
@@ -145,7 +152,8 @@ class HandshakeService implements Runnable, HandshakeListener {
                 socket.connect();
                 Log.d("DISCOVERY", device.getName() + " :Device successfully opened socket!");
             } catch (IOException e) {
-                Log.d(device.getAddress(), "Error Connecting!");
+                Log.d("DISCOVERY",device.getAddress()+ ":Error Connecting!");
+                return;
             }
             OutputStream os = socket.getOutputStream();
             InputStream is = socket.getInputStream();
@@ -158,8 +166,10 @@ class HandshakeService implements Runnable, HandshakeListener {
 
             try {
                 os.write(IoTBluetoothDeviceController.packet(IoTDeviceController.HANDSHAKE_REQUEST,new byte[]{}));
-            } catch (IOException e) {
+                Log.d("DISCOVERY",device.getAddress() + ": Sent Handshake request");
+            } catch (IOException e){
                 Log.d("DISCOVERY", device.getAddress() + ": Unabled to write handshake.");
+                Log.d("DISCOVERY",e.getMessage());
             }
 
             double start = System.currentTimeMillis();
@@ -196,7 +206,7 @@ class HandshakeService implements Runnable, HandshakeListener {
          0 - Handshake Header
          1 - Token
          2 - HeartbeatInterval
-         3..n-1 = subscription keys*/
+         3..n-1 = subscriptions*/
 
         int descIndex = 0;
         int bufIndex = 0;

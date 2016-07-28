@@ -1,6 +1,7 @@
 package com.iot.switzer.iotdormkitkat.ui;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Build;
 import android.view.View;
 import android.widget.TableRow;
@@ -28,6 +29,7 @@ public class EntryRow extends TableRow implements View.OnLongClickListener {
 
         this.title = new TextView(context);
         this.title.setText(title);
+        this.title.setTextColor(Color.WHITE);
         this.title.setPadding(0, 0, dp(scale, 10), dp(scale, 40));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
             this.title.setTextAlignment(TEXT_ALIGNMENT_TEXT_START);

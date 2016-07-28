@@ -10,9 +10,10 @@ import android.widget.FrameLayout;
 import android.widget.TableLayout;
 
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.ui.contollers.IoTSubscriptionEntryBooleanController;
-import com.iot.switzer.iotdormkitkat.ui.contollers.IoTSubscriptionEntryIntegerController;
-import com.iot.switzer.iotdormkitkat.ui.contollers.IoTSubscriptionEntryStringController;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryBooleanController;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryEnumController;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryIntegerController;
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryStringController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 
@@ -24,13 +25,11 @@ import java.util.HashMap;
 public class EntryValueUITable extends TableLayout implements IoTUIController.IoTUIControllerListener{
     public static final int ADD_ROW = 0;
     public static final int UPDATE_ROW = 1;
-    private static EntryValueUITable instance;
     private HashMap<String, EntryRow> rows;
     private Handler tableUpdateHandler;
 
     public EntryValueUITable(Context context) {
         super(context);
-        instance = this;
         this.setColumnStretchable(1, true);
         rows = new HashMap<>();
 
@@ -45,28 +44,7 @@ public class EntryValueUITable extends TableLayout implements IoTUIController.Io
 
                 switch (inputMessage.what) {
                     case EntryValueUITable.ADD_ROW:
-                        IoTUIController controller = null;
-                        switch (entry.getDescription().type) {
-                            case INT:
-                                controller =
-                                        new IoTSubscriptionEntryIntegerController(getContext(), entry);
-                                break;
-                            case CHAR:
-                                break;
-                            case STRING:
-                                controller =
-                                        new IoTSubscriptionEntryStringController(getContext(), entry);
-                                break;
-                            case BOOLEAN:
-                                controller =
-                                        new IoTSubscriptionEntryBooleanController(getContext(), entry);
-                                break;
-                            case BYTE_PTR:
-                                controller =
-                                        new IoTSubscriptionEntryStringController(getContext(), entry);
-                                break;
-                        }
-                        addRow(entry.getKey(),controller);
+                        addRow(entry.getKey(),controllerFromEntry(entry));
                         break;
                     case EntryValueUITable.UPDATE_ROW:
                         Log.d("TABLE", "Updating Row: " + entry.getKey());
@@ -78,8 +56,35 @@ public class EntryValueUITable extends TableLayout implements IoTUIController.Io
 
     }
 
-    public static EntryValueUITable getInstance() {
-        return instance;
+    private IoTUIController controllerFromEntry(IoTSubscriptionEntry entry)
+    {
+        IoTUIController controller = null;
+        switch (entry.getDescription().type) {
+        case INT:
+            controller =
+                    new IoTSubscriptionEntryIntegerController(getContext(), entry);
+            break;
+        case CHAR:
+            break;
+        case STRING:
+            controller =
+                    new IoTSubscriptionEntryStringController(getContext(), entry);
+            break;
+        case BOOLEAN:
+            controller =
+                    new IoTSubscriptionEntryBooleanController(getContext(), entry);
+            break;
+
+        case ENUM:
+            controller =
+                    new IoTSubscriptionEntryEnumController(getContext(),entry);
+            break;
+        case BYTE_PTR:
+            controller =
+                    new IoTSubscriptionEntryStringController(getContext(), entry);
+            break;
+        }
+        return controller;
     }
 
     public void handleUpdate(int state, IoTSubscriptionEntry e) {

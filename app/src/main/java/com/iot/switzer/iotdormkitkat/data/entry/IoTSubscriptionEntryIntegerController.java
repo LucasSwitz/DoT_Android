@@ -1,4 +1,4 @@
-package com.iot.switzer.iotdormkitkat.ui.contollers;
+package com.iot.switzer.iotdormkitkat.data.entry;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -6,9 +6,6 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
-
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
 
 
 /**
@@ -61,8 +58,8 @@ public class IoTSubscriptionEntryIntegerController extends IoTUIController imple
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        entry.update(new IoTSubscriptionEntry(entry.getDescription().
-                key,IoTSubscriptionEntry.bytePtrFromInteger(seekBar.getProgress())));
+        Log.d("PROGRESSBAR","Stopped Tracking");
+        entry.setVal(IoTSubscriptionEntry.bytePtrFromInteger(seekBar.getProgress()));
     }
 }
 

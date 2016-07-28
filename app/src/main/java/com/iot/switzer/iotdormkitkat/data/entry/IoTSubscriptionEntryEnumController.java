@@ -1,4 +1,4 @@
-package com.iot.switzer.iotdormkitkat.ui.contollers;
+package com.iot.switzer.iotdormkitkat.data.entry;
 
 import android.content.Context;
 import android.view.View;
@@ -20,7 +20,7 @@ public class IoTSubscriptionEntryEnumController extends IoTUIController {
         super(context,entry);
         spinner = new Spinner(context);
 
-        Integer enums[] = new Integer[entry.getDescription().highLimit];
+        Integer enums[] = new Integer[entry.getDescription().highLimit+1];
 
         for (int i = 0; i < enums.length; i++) {
             enums[i] = i;
