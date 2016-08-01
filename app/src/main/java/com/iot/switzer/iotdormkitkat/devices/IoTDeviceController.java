@@ -1,5 +1,9 @@
 package com.iot.switzer.iotdormkitkat.devices;
 
+import com.iot.switzer.iotdormkitkat.communication.DoTPacket;
+import com.iot.switzer.iotdormkitkat.communication.DoTPacketBuilder;
+import com.iot.switzer.iotdormkitkat.communication.DoTSubscriptionUpdatePacket;
+import com.iot.switzer.iotdormkitkat.communication.DoTSubscriptionUpdatePacketBuilder;
 import com.iot.switzer.iotdormkitkat.data.IoTContributor;
 import com.iot.switzer.iotdormkitkat.data.IoTContributorListener;
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
@@ -58,13 +62,22 @@ public abstract class IoTDeviceController implements IoTSubscriber, IoTContribut
         listeners.add(listener);
     }
 
+    private void write(DoTPacket packet) throws IOException {
+        write(packet.asBytes());
+    }
     protected void writeSubscriptionUpdateToDevice(String key, byte[] val) throws IOException {
 
-        byte out[] = new byte[key.length() + val.length + 1];
+        DoTSubscriptionUpdatePacketBuilder builder = new DoTSubscriptionUpdatePacketBuilder();
+        DoTPacket packet = builder.build(key,val);
+        write(packet);
+
+        /*byte out[] = new byte[key.length() + val.length + 1];
         int i;
         for (i = 0; i < key.length(); i++) {
             out[i] = (byte) key.charAt(i);
         }
+
+
 
         out[i] = UNI_DELIM;
         i++;
@@ -73,7 +86,7 @@ public abstract class IoTDeviceController implements IoTSubscriber, IoTContribut
             out[i + k] = val[k];
         }
 
-        write(packet(SUBSCRIPTION_UPDATE, out));
+        write(packet(SUBSCRIPTION_UPDATE, out));*/
     }
 
     protected void writeSubscriptionUpdateToDevice(IoTSubscriptionEntry e) throws IOException {

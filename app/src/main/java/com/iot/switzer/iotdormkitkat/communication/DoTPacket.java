@@ -29,6 +29,18 @@ public class DoTPacket {
         packet = new ArrayList<>();
     }
 
+    public byte[] asBytes()
+    {
+        byte[] out = new byte[packet.size()];
+
+        for(int i =0; i < packet.size();i++)
+        {
+            out[i] = packet.get(i);
+        }
+
+        return out;
+    }
+
     protected void setHeader(byte header)
     {
         packet.add(0,header);

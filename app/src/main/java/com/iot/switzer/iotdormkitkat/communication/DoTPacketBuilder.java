@@ -15,12 +15,12 @@ public class DoTPacketBuilder {
         packet.appendByte(0,header);
     }
 
-    private void appendEelement(byte[] data)
+    public void appendEelement(byte[] data)
     {
         packet.appendBytes(data);
     }
 
-    private DoTPacket pack()
+    public DoTPacket pack()
     {
         packet.close();
         return packet;
