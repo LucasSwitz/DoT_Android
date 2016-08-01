@@ -3,7 +3,6 @@ package com.iot.switzer.iotdormkitkat.data.entry;
 import android.util.Log;
 
 import com.iot.switzer.iotdormkitkat.data.IoTEntryListener;
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 
 import java.util.Arrays;
 
@@ -29,6 +28,7 @@ public class IoTSubscriptionEntry {
 
     public static String bytePtrToString(byte[] ptr) {
         String s = "";
+
         for (byte n : ptr) {
             s += String.valueOf(n);
             s += ",";
@@ -36,7 +36,7 @@ public class IoTSubscriptionEntry {
         /**
          * Removes the last comma
          */
-        s = s.substring(0,s.length()-2);
+        s = s.substring(0, s.length() - 2);
         return s;
     }
 
@@ -54,7 +54,7 @@ public class IoTSubscriptionEntry {
     public static byte[] bytePtrFromBoolean(boolean b) {
         byte convert[] = new byte[1];
 
-        if(b)
+        if (b)
             convert[0] = 1;
         else
             convert[0] = 0;
@@ -62,43 +62,41 @@ public class IoTSubscriptionEntry {
         return convert;
     }
 
-    public static String stringFromBytesPtr(byte[] bytes)
-    {
+    public static String stringFromBytesPtr(byte[] bytes) {
         String s = "";
 
-        for(byte b : bytes)
-        {
-            s+=(char)b;
+        for (byte b : bytes) {
+            s += (char) b;
         }
         return s;
     }
 
-    public static byte[] bytePtrFromString(String s)
-    {
+    public static byte[] bytePtrFromString(String s) {
         byte[] out = new byte[s.length()];
         char[] c = s.toCharArray();
-        for(int i =0; i < c.length; i++)
-        {
-            out[i] = (byte)c[i];
+        for (int i = 0; i < c.length; i++) {
+            out[i] = (byte) c[i];
         }
         return out;
     }
 
-    public static byte[] bytePtrFromDeliminatedString(String s)
-    {
-        byte[] out = new byte[s.length()];
-        char[] c = s.toCharArray();
-        String sOut = "";
-        for(int i =0; i < c.length; i++)
-        {
-            if(c[i] == ',')
-            {
-                out[i] = Byte.parseByte(sOut);
-            }
-
-            sOut +=c;
+    public static byte[] bytePtrFromTransitiveString(SubscriptionDescription.SubscriptionType t, String s) {
+        Log.d("TRANS", s);
+        switch (t) {
+            case INT:
+                return bytePtrFromInteger(Integer.parseInt(s));
+            case CHAR:
+                return bytePtrFromString(s);
+            case STRING:
+                return bytePtrFromString(s);
+            case BOOLEAN:
+                return bytePtrFromBoolean(Boolean.parseBoolean(s));
+            case ENUM:
+                return bytePtrFromInteger(Integer.parseInt(s));
+            case BYTE_PTR:
+                return bytePtrFromString(s);
         }
-        return out;
+        return null;
     }
 
     protected void lock() {
@@ -113,8 +111,8 @@ public class IoTSubscriptionEntry {
         this.listener = listener;
     }
 
-    public String getKey() {
-        return description.key;
+    public final String getKey() {
+        return description.getKey();
     }
 
     public byte[] getVal() {
@@ -122,7 +120,7 @@ public class IoTSubscriptionEntry {
     }
 
     protected void setVal(byte[] val) {
-        Log.d("ENTRY","Setting value");
+        Log.d("ENTRY", "Setting value");
 
         lastVal = this.val;
         this.val = val;
@@ -155,15 +153,14 @@ public class IoTSubscriptionEntry {
     public String getValAsString() {
         String s = "";
 
-        for(byte b : val)
-        {
-            s+=(char)b;
+        for (byte b : val) {
+            s += (char) b;
         }
         return s;
     }
 
     public Object getValueAsType() {
-        switch (description.type) {
+        switch (description.getType()) {
             case INT:
                 return getValAsInt();
             case CHAR:
@@ -192,32 +189,33 @@ public class IoTSubscriptionEntry {
     }
 
     public void update(SubscriptionDescription d) {
-        updateType(d.type);
+        updateType(d.getType());
         updateHighLimit(d.highLimit);
         updateLowLimit(d.lowLimit);
     }
 
 
-    private void updateHighLimit(int h)
-    {
-        if(h != getDescription().highLimit)
-        {
+    private void updateHighLimit(int h) {
+        if (h != getDescription().highLimit) {
             getDescription().highLimit = h;
         }
     }
 
-    private void updateLowLimit(int l)
-    {
-        if(l != getDescription().lowLimit)
-        {
+    private void updateLowLimit(int l) {
+        if (l != getDescription().lowLimit) {
             getDescription().highLimit = l;
         }
     }
 
     public void updateType(SubscriptionDescription.SubscriptionType t) {
-        if (t != getDescription().type) {
-            getDescription().type = t;
+        if (t != getDescription().getType()) {
+            getDescription().setType(t);
         }
+    }
+
+    public final SubscriptionDescription.SubscriptionType getType()
+    {
+        return description.getType();
     }
 
     public boolean isLocked() {
@@ -228,7 +226,7 @@ public class IoTSubscriptionEntry {
         return lastVal;
     }
 
-    public final SubscriptionDescription getDescription() {
+    protected final SubscriptionDescription getDescription() {
         return description;
     }
 }

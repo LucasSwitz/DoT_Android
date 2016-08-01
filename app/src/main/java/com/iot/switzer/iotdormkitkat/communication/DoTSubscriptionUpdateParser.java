@@ -3,10 +3,9 @@ package com.iot.switzer.iotdormkitkat.communication;
 /**
  * Created by Lucas on 7/31/2016.
  */
-public class DoTSubscriptionUpdateParser implements DoTParser{
+public class DoTSubscriptionUpdateParser implements DoTParser {
 
-    public DoTSubscriptionUpdatePacket parse(byte[] data)
-    {
+    public DoTSubscriptionUpdatePacket parse(byte[] data) {
         String key = "";
         byte val[] = null;
         byte buf[] = new byte[256];

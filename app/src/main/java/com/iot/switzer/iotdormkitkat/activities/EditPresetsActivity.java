@@ -1,6 +1,5 @@
 package com.iot.switzer.iotdormkitkat.activities;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -26,14 +25,13 @@ public class EditPresetsActivity extends AppCompatActivity implements Button.OnC
     public static final int EDIT_PRESETS = 0;
 
     public static final int PRESETS_EDITED = 1;
-    private HashMap<String,IoTPresetModel> modelMap;
+    private HashMap<String, IoTPresetModel> modelMap;
 
-    private HashMap<String,IoTPresetModel> selectedModels;
+    private HashMap<String, IoTPresetModel> selectedModels;
 
 
     @Override
-    protected void onCreate(Bundle savedInstances)
-    {
+    protected void onCreate(Bundle savedInstances) {
         super.onCreate(savedInstances);
         modelMap = new HashMap<>();
         selectedModels = new HashMap<>();
@@ -54,41 +52,33 @@ public class EditPresetsActivity extends AppCompatActivity implements Button.OnC
             }
         });
 
-        for(Preset p: PresetManager.getInstance())
-        {
-            IoTPresetModel b = new IoTPresetModel(l.getContext(),p);
+        for (Preset p : PresetManager.getInstance()) {
+            IoTPresetModel b = new IoTPresetModel(l.getContext(), p);
             b.setOnClickListener(this);
             l.addView(b);
-            modelMap.put(p.getName(),b);
+            modelMap.put(p.getName(), b);
         }
     }
 
     @Override
     public void onClick(View v) {
-        IoTPresetModel m = (IoTPresetModel)v;
+        IoTPresetModel m = (IoTPresetModel) v;
         m.setActiveState(!(m.isActive()));
 
-        if(m.isActive())
-        {
-            if(selectedModels.get(m.getText().toString()) == null)
-            {
-                selectedModels.put(m.getText().toString(),m);
+        if (m.isActive()) {
+            if (selectedModels.get(m.getText().toString()) == null) {
+                selectedModels.put(m.getText().toString(), m);
             }
-        }
-        else
-        {
-            if(selectedModels.get(m.getText().toString()) != null)
-            {
+        } else {
+            if (selectedModels.get(m.getText().toString()) != null) {
                 selectedModels.remove(m.getText().toString());
             }
         }
     }
 
-    public void deleteSelectedValues()
-    {
+    public void deleteSelectedValues() {
         LinearLayout l = (LinearLayout) findViewById(R.id.editPresetsScrollLinearLayout);
-        for(IoTPresetModel m : selectedModels.values())
-        {
+        for (IoTPresetModel m : selectedModels.values()) {
             l.removeView(m);
             try {
                 PresetManager.getInstance().deletePreset(m.getPreset());
@@ -117,8 +107,7 @@ public class EditPresetsActivity extends AppCompatActivity implements Button.OnC
     }
 
     @Override
-    protected void onDestroy()
-    {
+    protected void onDestroy() {
         super.onDestroy();
     }
 }

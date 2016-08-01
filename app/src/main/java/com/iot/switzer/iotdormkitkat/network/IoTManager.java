@@ -18,14 +18,12 @@ import java.util.HashMap;
  * Created by Administrator on 6/20/2016.
  */
 public class IoTManager implements IoTDeviceListener {
-    static private IoTManager instance = null;
-    private HashMap<String, IoTDeviceController> devices;
-    private ArrayList<IoTNetworkListener> listeners;
-
     public static final int STATE_OFF = 0;
     public static final int STATE_DISCOVERY = 1;
     public static final int STATE_LIVE = 2;
-
+    static private IoTManager instance = null;
+    private HashMap<String, IoTDeviceController> devices;
+    private ArrayList<IoTNetworkListener> listeners;
     private int currentState;
 
 
@@ -41,8 +39,7 @@ public class IoTManager implements IoTDeviceListener {
         return instance;
     }
 
-    public void addListener(IoTNetworkListener listener)
-    {
+    public void addListener(IoTNetworkListener listener) {
         listeners.add(listener);
     }
 
@@ -50,21 +47,18 @@ public class IoTManager implements IoTDeviceListener {
         _addDevice(device);
         signalDeviceAdd(device);
 
-        if(currentState != STATE_LIVE && currentState != STATE_DISCOVERY)
+        if (currentState != STATE_LIVE && currentState != STATE_DISCOVERY)
             changeState(STATE_LIVE);
     }
 
-    private void _addDevice(IoTDeviceController device)
-    {
+    private void _addDevice(IoTDeviceController device) {
         devices.put(device.getToken(), device);
         device.addListener(this);
         IoTVariablesBase.getInstance().addSubscriber(device);
     }
 
-    protected void signalDeviceAdd(IoTDeviceController d)
-    {
-        for(IoTNetworkListener l : listeners)
-        {
+    protected void signalDeviceAdd(IoTDeviceController d) {
+        for (IoTNetworkListener l : listeners) {
             l.onDeviceAdd(d);
         }
     }
@@ -73,31 +67,27 @@ public class IoTManager implements IoTDeviceListener {
         return devices.values();
     }
 
-    protected void signalNetworkStateChange(IoTNetworkStateData data)
-    {
-        for(IoTNetworkListener l : listeners)
-        {
+    protected void signalNetworkStateChange(IoTNetworkStateData data) {
+        for (IoTNetworkListener l : listeners) {
             l.onNetworkStateChange(data);
         }
     }
 
-    public void searchForDevices(Activity a)
-    {
-        if(currentState != STATE_DISCOVERY) {
+    public void searchForDevices(Activity a) {
+        if (currentState != STATE_DISCOVERY) {
             startDiscoveryService(a);
             changeState(STATE_DISCOVERY);
             startDiscoveryProgressUpdate();
         }
     }
 
-    private void startDiscoveryProgressUpdate()
-    {
+    private void startDiscoveryProgressUpdate() {
         (new Thread(new Runnable() {
             @Override
             public void run() {
                 long start = System.currentTimeMillis();
                 long duration = 0;
-                while(duration < DeviceDiscoveryService.discoveryPeriod) {
+                while (duration < DeviceDiscoveryService.discoveryPeriod) {
                     try {
                         //update at 10hz
                         Thread.sleep(100);
@@ -106,7 +96,7 @@ public class IoTManager implements IoTDeviceListener {
                     }
                     duration = (System.currentTimeMillis() - start) / 1000;
 
-                    int progress = (int)(((double)duration/(double)DeviceDiscoveryService.discoveryPeriod)*100);
+                    int progress = (int) (((double) duration / (double) DeviceDiscoveryService.discoveryPeriod) * 100);
                     postDiscoverState(progress);
                 }
                 postState();
@@ -114,38 +104,30 @@ public class IoTManager implements IoTDeviceListener {
         })).start();
     }
 
-    public void postState()
-    {
-        if(devices.size() > 0)
-        {
+    public void postState() {
+        if (devices.size() > 0) {
             changeState(STATE_LIVE);
-        }
-        else
-        {
+        } else {
             changeState(STATE_OFF);
         }
     }
 
-    private void postDiscoverState(int progress)
-    {
-        signalNetworkStateChange(new IoTNetworkStateData(1,progress, "Discovering..."));
+    private void postDiscoverState(int progress) {
+        signalNetworkStateChange(new IoTNetworkStateData(1, progress, "Discovering..."));
     }
 
-    private void postLiveState()
-    {
-        Log.d("NETWORK","Network state changed to: STATE_LIVE");
-        signalNetworkStateChange(new IoTNetworkStateData(2,100, "Network Live"));
+    private void postLiveState() {
+        Log.d("NETWORK", "Network state changed to: STATE_LIVE");
+        signalNetworkStateChange(new IoTNetworkStateData(2, 100, "Network Live"));
     }
 
-    private void postOffState()
-    {
-        Log.d("NETWORK","Network state changed to: STATE_OFF");
-        signalNetworkStateChange(new IoTNetworkStateData(0,0, "Network Off"));
+    private void postOffState() {
+        Log.d("NETWORK", "Network state changed to: STATE_OFF");
+        signalNetworkStateChange(new IoTNetworkStateData(0, 0, "Network Off"));
     }
 
-    private void changeState(int state)
-    {
-        if(currentState != state) {
+    private void changeState(int state) {
+        if (currentState != state) {
             switch (state) {
                 case STATE_OFF:
                     postOffState();
@@ -162,8 +144,7 @@ public class IoTManager implements IoTDeviceListener {
         }
     }
 
-    private void startDiscoveryService(Activity a)
-    {
+    private void startDiscoveryService(Activity a) {
         Intent msgIntent = new Intent(a.getApplicationContext(), DeviceDiscoveryService.class);
         msgIntent.putExtra(DeviceDiscoveryService.PARAM_IN_MSG, "START");
         a.startService(msgIntent);

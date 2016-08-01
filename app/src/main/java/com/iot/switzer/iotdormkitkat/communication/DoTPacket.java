@@ -1,8 +1,5 @@
 package com.iot.switzer.iotdormkitkat.communication;
 
-import com.iot.switzer.iotdormkitkat.data.IoTContributor;
-import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
-
 import java.util.ArrayList;
 
 /**
@@ -21,56 +18,46 @@ public class DoTPacket {
     public static final byte SUBSCRIPTION_UPDATE = 0x31;
 
     public static final byte UNI_DELIM = ',';
-    public static final byte PACKET_DELIM = (char)13;
+    public static final byte PACKET_DELIM = (char) 13;
     ArrayList<Byte> packet;
 
-    public DoTPacket()
-    {
+    public DoTPacket() {
         packet = new ArrayList<>();
     }
 
-    public byte[] asBytes()
-    {
+    public byte[] asBytes() {
         byte[] out = new byte[packet.size()];
 
-        for(int i =0; i < packet.size();i++)
-        {
+        for (int i = 0; i < packet.size(); i++) {
             out[i] = packet.get(i);
         }
 
         return out;
     }
 
-    protected void setHeader(byte header)
-    {
-        packet.add(0,header);
-    }
-
-    public final byte getHeader()
-    {
+    public final byte getHeader() {
         return packet.get(0);
     }
 
-    protected void appendBytes(byte[] data)
-    {
-        for(byte b: data)
-        {
+    protected void setHeader(byte header) {
+        packet.add(0, header);
+    }
+
+    protected void appendBytes(byte[] data) {
+        for (byte b : data) {
             packet.add(b);
         }
     }
 
-    protected void appendByte(int i, byte b)
-    {
-        packet.add(i,b);
+    protected void appendByte(int i, byte b) {
+        packet.add(i, b);
     }
 
-    protected void delim()
-    {
+    protected void delim() {
         packet.add(UNI_DELIM);
     }
 
-    protected void close()
-    {
+    protected void close() {
         packet.add(PACKET_DELIM);
     }
 

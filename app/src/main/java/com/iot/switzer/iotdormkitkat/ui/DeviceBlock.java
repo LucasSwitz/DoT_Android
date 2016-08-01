@@ -10,18 +10,16 @@ import android.widget.ScrollView;
 import android.widget.TableRow;
 
 import com.iot.switzer.iotdormkitkat.R;
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
+import com.iot.switzer.iotdormkitkat.data.entry.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 
-public class DeviceBlock extends TableRow
-{
+public class DeviceBlock extends TableRow {
+    protected static final int MAX_COLOR = 16777215;
+    protected static final float MIN_SATURATION = .7f;
     private IoTDeviceController controller;
     private EntryValueUITable entryTable;
     private LinearLayout elements;
-
-    protected static final int MAX_COLOR  = 16777215;
-    protected  static final float MIN_SATURATION = .7f;
 
     public DeviceBlock(Context context, IoTDeviceController c) {
         super(context);
@@ -38,11 +36,11 @@ public class DeviceBlock extends TableRow
 
 
         for (SubscriptionDescription d : controller.getSubscriptions()) {
-            entryTable.updateRow(IoTVariablesBase.getInstance().get(d.key));
+            entryTable.updateRow(IoTVariablesBase.getInstance().get(d.getKey()));
         }
 
-        displayButton.setBackgroundColor(colorFromName(displayButton.getText().toString(),1));
-        sv.setBackgroundColor(colorFromName(displayButton.getText().toString(),.3f));
+        displayButton.setBackgroundColor(colorFromName(displayButton.getText().toString(), 1));
+        sv.setBackgroundColor(colorFromName(displayButton.getText().toString(), .3f));
 
         sv.addView(entryTable);
 
@@ -62,12 +60,11 @@ public class DeviceBlock extends TableRow
     }
 
 
-    public static int colorFromName(String name, float saturationMultiplier)
-    {
+    public static int colorFromName(String name, float saturationMultiplier) {
         float[] hsv = new float[3];
-        Color.colorToHSV(-(name.hashCode() % MAX_COLOR),hsv);
+        Color.colorToHSV(-(name.hashCode() % MAX_COLOR), hsv);
 
-        hsv[1] = hsv[1] < MIN_SATURATION ? MIN_SATURATION*saturationMultiplier : hsv[1]*saturationMultiplier;
+        hsv[1] = hsv[1] < MIN_SATURATION ? MIN_SATURATION * saturationMultiplier : hsv[1] * saturationMultiplier;
 
         return Color.HSVToColor(hsv);
     }

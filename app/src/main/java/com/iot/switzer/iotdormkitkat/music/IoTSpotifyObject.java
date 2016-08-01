@@ -2,8 +2,7 @@ package com.iot.switzer.iotdormkitkat.music;
 
 import android.util.Log;
 
-import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
+import com.iot.switzer.iotdormkitkat.data.entry.SubscriptionDescription;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
 import com.spotify.sdk.android.player.ConnectionStateCallback;
@@ -22,11 +21,11 @@ import java.util.List;
  */
 public class IoTSpotifyObject extends IoTDeviceController implements PlayerNotificationCallback, ConnectionStateCallback {
 
-    private Player player;
     static String PLAYLIST_ENTRY_KEY = "Playlist URI";
-    public IoTSpotifyObject(Player player, String token)
-    {
-        super("Local",token,0,new ArrayList<>(Arrays.asList(new SubscriptionDescription(PLAYLIST_ENTRY_KEY, SubscriptionDescription.SubscriptionType.STRING))));
+    private Player player;
+
+    public IoTSpotifyObject(Player player, String token) {
+        super("Local", token, 0, new ArrayList<>(Arrays.asList(new SubscriptionDescription(PLAYLIST_ENTRY_KEY, SubscriptionDescription.SubscriptionType.STRING))));
         this.player = player;
         player.addPlayerNotificationCallback(this);
         player.addConnectionStateCallback(this);
@@ -35,7 +34,7 @@ public class IoTSpotifyObject extends IoTDeviceController implements PlayerNotif
     @Override
     public void onSubscriptionUpdate(IoTSubscriptionEntry entry) {
         player.setShuffle(true);
-        Log.d("SPOTIFY","Playing: "+ entry.getValAsString());
+        Log.d("SPOTIFY", "Playing: " + entry.getValAsString());
         player.play(entry.getValAsString());
     }
 
@@ -44,8 +43,7 @@ public class IoTSpotifyObject extends IoTDeviceController implements PlayerNotif
         return this.getDeviceDescription().subscriptionDescriptions;
     }
 
-    public void destroy()
-    {
+    public void destroy() {
         Spotify.destroyPlayer(this);
     }
 

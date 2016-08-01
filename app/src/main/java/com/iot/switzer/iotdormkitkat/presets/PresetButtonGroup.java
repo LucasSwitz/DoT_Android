@@ -31,23 +31,15 @@ import java.util.HashMap;
 public class PresetButtonGroup implements Button.OnClickListener,
         DataApi.DataListener,
         GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        GoogleApiClient.OnConnectionFailedListener {
 
-    private HashMap<String, IoTPresetButton> buttonMap;
     private static final String KEY_HEADER = "com.switzer.iotdorm.";
     private static final String TABLE_HEADER = "/presets";
-
+    private HashMap<String, IoTPresetButton> buttonMap;
     private Context context;
-
-    public Collection<IoTPresetButton> getButtons()
-    {
-        return buttonMap.values();
-    }
-
     private GoogleApiClient googleApiClient;
 
-    public PresetButtonGroup(Context context)
-    {
+    public PresetButtonGroup(Context context) {
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Wearable.API)
                 .addConnectionCallbacks(this)
@@ -61,44 +53,43 @@ public class PresetButtonGroup implements Button.OnClickListener,
         reload();
     }
 
-    public void reload()
-    {
+    private static String toKeySyntax(String s) {
+        return (KEY_HEADER + s);
+    }
+
+    public Collection<IoTPresetButton> getButtons() {
+        return buttonMap.values();
+    }
+
+    public void reload() {
         PresetManager.getInstance().reload();
         buttonMap.clear();
-        for(Preset p : PresetManager.getInstance())
-        {
-            IoTPresetButton b = new IoTPresetButton(context,p);
+        for (Preset p : PresetManager.getInstance()) {
+            IoTPresetButton b = new IoTPresetButton(context, p);
             b.setOnClickListener(this);
             add(b);
         }
     }
 
-    public void add(IoTPresetButton b)
-    {
-        buttonMap.put(toKeySyntax(b.getPreset().getName()),b);
-        sendUpdate(b.getPreset().getName(),b.isPresetEnabled());
+    public void add(IoTPresetButton b) {
+        buttonMap.put(toKeySyntax(b.getPreset().getName()), b);
+        sendUpdate(b.getPreset().getName(), b.isPresetEnabled());
     }
 
     @Override
     public void onClick(View v) {
-        sendUpdate(((IoTPresetButton)v).getPreset().getName(),!((IoTPresetButton)v).isPresetEnabled());
+        sendUpdate(((IoTPresetButton) v).getPreset().getName(), !((IoTPresetButton) v).isPresetEnabled());
 
     }
 
-    public void sendUpdate(String name, boolean enabled)
-    {
+    public void sendUpdate(String name, boolean enabled) {
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create(TABLE_HEADER);
 
-        putDataMapReq.getDataMap().putBoolean(toKeySyntax(name),enabled);
+        putDataMapReq.getDataMap().putBoolean(toKeySyntax(name), enabled);
 
         PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult =
                 Wearable.DataApi.putDataItem(googleApiClient, putDataReq);
-    }
-
-    private static String toKeySyntax(String s)
-    {
-        return (KEY_HEADER + s);
     }
 
     @Override
@@ -108,19 +99,18 @@ public class PresetButtonGroup implements Button.OnClickListener,
             if (event.getType() == DataEvent.TYPE_CHANGED) {
 
                 DataItem item = event.getDataItem();
-                Log.d("WEARABLE", "URI:"+item.getUri().getPath().toString());
+                Log.d("WEARABLE", "URI:" + item.getUri().getPath().toString());
                 if (item.getUri().getPath().compareTo(TABLE_HEADER) == 0) {
                     DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
                     for (String key : dataMap.keySet()) {
-                        Log.d("WEARABLE", "Key:"+key);
+                        Log.d("WEARABLE", "Key:" + key);
                         boolean enabled = dataMap.getBoolean(key);
-                        if(enabled) {
+                        if (enabled) {
                             buttonMap.get(key).enablePreset();
-                            Log.d("WEARABLE","Enabling");
-                        }
-                        else {
+                            Log.d("WEARABLE", "Enabling");
+                        } else {
                             buttonMap.get(key).disablePreset();
-                            Log.d("WEARABLE","Disabling");
+                            Log.d("WEARABLE", "Disabling");
                         }
                     }
 
@@ -132,14 +122,12 @@ public class PresetButtonGroup implements Button.OnClickListener,
     }
 
     @Override
-    public void onConnected(@Nullable Bundle bundle)
-    {
-        Log.d("WEARABLE","Connected!");
-        Wearable.DataApi.addListener(googleApiClient,this);
+    public void onConnected(@Nullable Bundle bundle) {
+        Log.d("WEARABLE", "Connected!");
+        Wearable.DataApi.addListener(googleApiClient, this);
 
         PutDataMapRequest putDataMapReq = PutDataMapRequest.create(TABLE_HEADER);
-        for(IoTPresetButton b : buttonMap.values())
-        {
+        for (IoTPresetButton b : buttonMap.values()) {
             putDataMapReq.getDataMap().putBoolean(toKeySyntax(b.getPreset().getName()), b.isPresetEnabled());
         }
 
@@ -148,14 +136,12 @@ public class PresetButtonGroup implements Button.OnClickListener,
                 Wearable.DataApi.putDataItem(googleApiClient, putDataReq);
     }
 
-    public void pause()
-    {
-        Wearable.DataApi.removeListener(googleApiClient,this);
+    public void pause() {
+        Wearable.DataApi.removeListener(googleApiClient, this);
         googleApiClient.disconnect();
     }
 
-    public void resume()
-    {
+    public void resume() {
         googleApiClient.connect();
     }
 
@@ -166,6 +152,6 @@ public class PresetButtonGroup implements Button.OnClickListener,
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d("WEARABLE","Connection Failed");
+        Log.d("WEARABLE", "Connection Failed");
     }
 }

@@ -6,9 +6,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
-
 /**
  * Created by Lucas Switzer on 6/30/2016.
  */
@@ -19,7 +16,7 @@ public class IoTSubscriptionEntryEnumController extends IoTUIController implemen
     private IoTSubscriptionEntry entry;
 
     public IoTSubscriptionEntryEnumController(Context context, IoTSubscriptionEntry entry) {
-        super(context,entry);
+        super(context, entry);
         spinner = new Spinner(context);
         spinner.setOnItemSelectedListener(this);
 
@@ -29,9 +26,8 @@ public class IoTSubscriptionEntryEnumController extends IoTUIController implemen
         disable();
     }
 
-    private void populateSpinner()
-    {
-        Integer enums[] = new Integer[entry.getDescription().highLimit+1];
+    private void populateSpinner() {
+        Integer enums[] = new Integer[entry.getDescription().highLimit + 1];
 
         for (int i = 0; i < enums.length; i++) {
             enums[i] = i;
@@ -44,7 +40,7 @@ public class IoTSubscriptionEntryEnumController extends IoTUIController implemen
 
     @Override
     public void postValue() {
-       spinner.setSelection(position);
+        spinner.setSelection(position);
     }
 
     @Override

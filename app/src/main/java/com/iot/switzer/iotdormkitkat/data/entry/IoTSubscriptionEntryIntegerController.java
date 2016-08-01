@@ -17,7 +17,7 @@ public class IoTSubscriptionEntryIntegerController extends IoTUIController imple
     private SeekBar seekBar;
 
     public IoTSubscriptionEntryIntegerController(Context context, IoTSubscriptionEntry entry) {
-        super(context,entry);
+        super(context, entry);
         this.entry = entry;
         seekBar = new SeekBar(context);
         seekBar.setOnSeekBarChangeListener(this);
@@ -58,7 +58,7 @@ public class IoTSubscriptionEntryIntegerController extends IoTUIController imple
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        Log.d("PROGRESSBAR","Stopped Tracking");
+        Log.d("PROGRESSBAR", "Stopped Tracking");
         entry.setVal(IoTSubscriptionEntry.bytePtrFromInteger(seekBar.getProgress()));
     }
 }

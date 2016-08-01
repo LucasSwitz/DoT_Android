@@ -5,7 +5,6 @@ import android.util.Log;
 import com.iot.switzer.iotdormkitkat.data.IoTEntryListener;
 import com.iot.switzer.iotdormkitkat.data.IoTObserver;
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,7 +40,7 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
     }
 
     private void addEntry(IoTSubscriptionEntry entry) {
-        Log.d("DATABASE", "Entry Added: " + entry.getKey() + "," + entry.getVal() + "," + entry.getDescription().type.name());
+        Log.d("DATABASE", "Entry Added: " + entry.getKey() + "," + entry.getVal() + "," + entry.getType().name());
         entry.setListener(this);
         put(entry.getKey(), entry);
     }
@@ -62,30 +61,30 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
             /**
              * If subscription doesn't exist init its index
              * */
-            if (subscriptions.get(d.key) == null) {
-                subscriptions.put(d.key, new ArrayList<IoTSubscriber>());
+            if (subscriptions.get(d.getKey()) == null) {
+                subscriptions.put(d.getKey(), new ArrayList<IoTSubscriber>());
             }
 
-            Log.d("DATABASE", "Adding subscriber to: " + d.key);
-            subscriptions.get(d.key).add(subscriber);
+            Log.d("DATABASE", "Adding subscriber to: " + d.getKey());
+            subscriptions.get(d.getKey()).add(subscriber);
 
             /**
              *  If subscription entry does not exists yet, add it with default value.
              */
-            if (super.get(d.key) == null) {
-                Log.d("DATABASE", "Adding New Entry based on Sub: " + d.key);
+            if (super.get(d.getKey()) == null) {
+                Log.d("DATABASE", "Adding New Entry based on Sub: " + d.getKey());
                 addEntry(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
             } else {
                 /**
                  * If a subscriber further describes and entry  past the default, update the entry.
                  */
-                    get(d.key).update(d);
-                    updateObservers(d.key);
+                get(d.getKey()).update(d);
+                updateObservers(d.getKey());
             }
             /**
              * Update the subscriber with the current value of the entry
              * */
-            subscriber.onSubscriptionUpdate(get(d.key));
+            subscriber.onSubscriptionUpdate(get(d.getKey()));
         }
     }
 

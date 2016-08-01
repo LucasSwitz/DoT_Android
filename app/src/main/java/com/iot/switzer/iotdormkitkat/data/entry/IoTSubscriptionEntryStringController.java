@@ -4,9 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.EditText;
 
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
-
 /**
  * Created by Lucas Switzer on 7/3/2016.
  */
@@ -15,8 +12,8 @@ public class IoTSubscriptionEntryStringController extends IoTUIController {
     private EditText editText;
 
 
-    public IoTSubscriptionEntryStringController(Context context,IoTSubscriptionEntry e) {
-        super(context,e);
+    public IoTSubscriptionEntryStringController(Context context, IoTSubscriptionEntry e) {
+        super(context, e);
         editText = new EditText(context);
         disable();
     }

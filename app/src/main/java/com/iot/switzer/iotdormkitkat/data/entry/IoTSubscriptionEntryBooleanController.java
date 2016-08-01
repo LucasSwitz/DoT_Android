@@ -4,9 +4,6 @@ import android.content.Context;
 import android.view.View;
 import android.widget.Switch;
 
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
-
 /**
  * Created by Lucas Switzer on 6/27/2016.
  */
@@ -16,12 +13,13 @@ public class IoTSubscriptionEntryBooleanController extends IoTUIController {
     private Switch aSwitch;
 
     public IoTSubscriptionEntryBooleanController(Context context, IoTSubscriptionEntry entry) {
-        super(context,entry);
+        super(context, entry);
         aSwitch = new Switch(context);
         aSwitch.setChecked(false);
 
         disable();
     }
+
     @Override
     public void postValue() {
         aSwitch.setChecked(value);

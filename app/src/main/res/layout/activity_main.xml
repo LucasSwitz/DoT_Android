@@ -7,56 +7,58 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
+    android:padding="0dp"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:showAsAction="ifRoom"
-    tools:context="com.iot.switzer.iotdormkitkat.MainActivity"
-    android:padding="0dp">
+    tools:context="com.iot.switzer.iotdormkitkat.MainActivity">
 
-    <include layout="@layout/main_toolbar"
-        android:id="@+id/toolbar" />
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/main_toolbar" />
 
-    <include layout="@layout/network_status_block"
+    <include
         android:id="@+id/status_block"
-        android:layout_below="@+id/toolbar"
-        android:layout_centerHorizontal="true"
+        layout="@layout/network_status_block"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar"
+        android:layout_centerHorizontal="true" />
 
     <ScrollView
+        android:id="@+id/tableScrollView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/tableScrollView"
+        android:layout_above="@+id/presetScrollView"
+        android:layout_alignEnd="@+id/presetScrollView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignRight="@+id/presetScrollView"
-        android:layout_alignEnd="@+id/presetScrollView"
-        android:layout_above="@+id/presetScrollView"
+        android:layout_below="@+id/status_block"
         android:fillViewport="false"
-        android:padding="10dp"
-        android:layout_below="@+id/status_block">
+        android:padding="10dp">
 
     </ScrollView>
 
     <HorizontalScrollView
+        android:id="@+id/presetScrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/presetScrollView"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
         android:fillViewport="false"
         android:paddingBottom="20dp">
 
         <LinearLayout
-            android:orientation="horizontal"
+            android:id="@+id/presetLinearLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/presetLinearLayout">
+            android:orientation="horizontal">
 
         </LinearLayout>
     </HorizontalScrollView>

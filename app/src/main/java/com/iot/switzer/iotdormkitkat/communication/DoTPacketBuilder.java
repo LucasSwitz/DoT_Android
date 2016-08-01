@@ -5,23 +5,20 @@ package com.iot.switzer.iotdormkitkat.communication;
  */
 public class DoTPacketBuilder {
     private DoTPacket packet;
-    public DoTPacketBuilder()
-    {
+
+    public DoTPacketBuilder() {
         packet = new DoTPacket();
     }
 
-    public void setHeader(byte header)
-    {
-        packet.appendByte(0,header);
+    public void setHeader(byte header) {
+        packet.appendByte(0, header);
     }
 
-    public void appendEelement(byte[] data)
-    {
+    public void appendEelement(byte[] data) {
         packet.appendBytes(data);
     }
 
-    public DoTPacket pack()
-    {
+    public DoTPacket build() {
         packet.close();
         return packet;
     }

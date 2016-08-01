@@ -1,41 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<TableRow android:id="@+id/presetEntryRow"
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/presetEntryRow"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/entryName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:layout_weight="1"
-            android:maxLines = "1"
-            android:imeOptions="actionDone"
-            android:inputType="textPersonName"
-            android:textColor="#000000"/>
+    <EditText
+        android:id="@+id/entryName"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:imeOptions="actionDone"
+        android:inputType="textPersonName"
+        android:maxLines="1"
+        android:textAlignment="center"
+        android:textColor="#000000" />
 
-        <Spinner
-            android:id="@+id/entryType"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textAlignment="center"
-            android:spinnerMode="dropdown"
-            android:popupBackground="#FFFFFF"
-            />
+    <Spinner
+        android:id="@+id/entryType"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:popupBackground="#FFFFFF"
+        android:spinnerMode="dropdown"
+        android:textAlignment="center" />
 
 
-        <EditText
-            android:id="@+id/entryValue"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:textAlignment="center"
-            android:layout_weight="1"
-            android:maxLines = "1"
-            android:imeOptions="actionDone"
-            android:inputType="textPersonName"
-            android:textColor="#000000"
-            />
+    <EditText
+        android:id="@+id/entryValue"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:imeOptions="actionDone"
+        android:inputType="textPersonName"
+        android:maxLines="1"
+        android:textAlignment="center"
+        android:textColor="#000000" />
 </TableRow>

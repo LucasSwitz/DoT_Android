@@ -1,6 +1,7 @@
 package com.iot.switzer.iotdormkitkat.data;
 
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
+import com.iot.switzer.iotdormkitkat.data.entry.SubscriptionDescription;
 
 import java.util.List;
 

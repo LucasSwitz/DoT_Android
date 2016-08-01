@@ -1,7 +1,6 @@
 package com.iot.switzer.iotdormkitkat.communication;
 
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
-import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
+import com.iot.switzer.iotdormkitkat.data.entry.SubscriptionDescription;
 
 import java.util.ArrayList;
 
@@ -14,38 +13,31 @@ public class DoTHandshakePacket extends DoTPacket {
     int heartbeatInterval;
     ArrayList<SubscriptionDescription> subscriptionDescriptions;
 
-    public DoTHandshakePacket()
-    {
+    public DoTHandshakePacket() {
         subscriptionDescriptions = new ArrayList<>();
     }
 
-    public ArrayList<SubscriptionDescription> getSubscriptionDescriptions()
-    {
+    public ArrayList<SubscriptionDescription> getSubscriptionDescriptions() {
         return subscriptionDescriptions;
     }
 
-    public int getHeartbeatInterval()
-    {
+    public int getHeartbeatInterval() {
         return heartbeatInterval;
     }
 
-    public String getToken()
-    {
+    public String getToken() {
         return token;
     }
 
-    protected void setToken(String token)
-    {
+    protected void setToken(String token) {
         this.token = token;
     }
 
-    protected void setHeartBeatInterval(int i)
-    {
+    protected void setHeartBeatInterval(int i) {
         heartbeatInterval = i;
     }
 
-    protected void addSubscription(SubscriptionDescription subscriptionDescription)
-    {
+    protected void addSubscription(SubscriptionDescription subscriptionDescription) {
         subscriptionDescriptions.add(subscriptionDescription);
     }
 

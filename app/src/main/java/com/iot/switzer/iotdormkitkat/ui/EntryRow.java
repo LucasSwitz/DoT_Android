@@ -21,7 +21,18 @@ public class EntryRow extends TableRow implements View.OnLongClickListener {
 
     public EntryRow(Context context, String title, IoTUIController controller) {
         super(context);
+        this.controller = controller;
 
+        initUI(context, title);
+        disableUserControls();
+
+    }
+
+    private static int dp(float scale, int pixels) {
+        return (int) (pixels * scale + 0.5f);
+    }
+
+    private void initUI(Context context, String title) {
         final float scale = getContext().getResources().getDisplayMetrics().density;
 
 
@@ -36,29 +47,20 @@ public class EntryRow extends TableRow implements View.OnLongClickListener {
         }
         this.addView(this.title);
 
-        this.controller = controller;
-
         this.addView(controller.getView());
 
         this.setLongClickable(true);
         this.setOnLongClickListener(this);
-
-        disableUserControls();
-    }
-
-    private static int dp(float scale, int pixels) {
-        return (int) (pixels * scale + 0.5f);
     }
 
     private void enableUserControls() {
-        if(controller.enable())
-        {
+        if (controller.enable()) {
             userControlled = true;
         }
     }
 
     private void disableUserControls() {
-        if(controller.disable()) {
+        if (controller.disable()) {
             userControlled = false;
             Toast.makeText(getContext(), title.getText() + ": Restored Network Control", Toast.LENGTH_SHORT).show();
         }
@@ -73,10 +75,6 @@ public class EntryRow extends TableRow implements View.OnLongClickListener {
         }
 
         return false;
-    }
-
-    public void setTitle(String title) {
-        this.title.setText(title);
     }
 
     public void drawController() {

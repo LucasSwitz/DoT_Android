@@ -1,7 +1,6 @@
 package com.iot.switzer.iotdormkitkat.communication;
 
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
-import com.iot.switzer.iotdormkitkat.devices.IoTDeviceController;
+import com.iot.switzer.iotdormkitkat.data.entry.SubscriptionDescription;
 
 /**
  * Created by Lucas on 7/31/2016.
@@ -32,7 +31,7 @@ public class DoTHandshakeParser implements DoTParser {
                 case 13:
 
                     break;
-                case IoTDeviceController.UNI_DELIM:
+                case DoTPacket.UNI_DELIM:
                     switch (descIndex) {
                         case 0:
                             //we wont save the header
@@ -55,9 +54,9 @@ public class DoTHandshakeParser implements DoTParser {
                                 for (int k = 0; k < bufIndex; k++) {
                                     s += (char) buf[k];
                                 }
-                                subDesc.key = s;
+                                subDesc.setKey(s);
                             } else if ((descIndex - 2) % 4 == 2) {
-                                subDesc.type = SubscriptionDescription.SubscriptionType.fromInt(buf[0]);
+                                subDesc.setType(SubscriptionDescription.SubscriptionType.fromInt(buf[0]));
                             } else if ((descIndex - 2) % 4 == 3) {
                                 subDesc.lowLimit = buf[0] & 0xFF;
                             } else if ((descIndex - 2) % 4 == 0) {

@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:orientation="vertical">
 
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="New Button"
-            android:id="@+id/deviceButton"
-            android:textColor="#ffffff"
-            android:background="#000000"
-            android:gravity="center_vertical"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:paddingLeft="20dp" />
+    <Button
+        android:id="@+id/deviceButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:background="#000000"
+        android:gravity="center_vertical"
+        android:paddingLeft="20dp"
+        android:text="New Button"
+        android:textColor="#ffffff" />
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:id="@+id/entryScrollView"
-            android:fillViewport="false"
-            android:padding="10dp"
-            android:layout_below="@+id/deviceButton"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true">
+    <ScrollView
+        android:id="@+id/entryScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/deviceButton"
+        android:fillViewport="false"
+        android:padding="10dp">
 
-        </ScrollView>
+    </ScrollView>
 </LinearLayout>

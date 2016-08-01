@@ -10,10 +10,6 @@ import android.widget.FrameLayout;
 import android.widget.TableLayout;
 
 import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryBooleanController;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryEnumController;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryIntegerController;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntryStringController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTUIController;
 import com.iot.switzer.iotdormkitkat.data.entry.IoTVariablesBase;
 
@@ -22,7 +18,7 @@ import java.util.HashMap;
 /**
  * Created by Lucas Switzer on 6/25/2016.
  */
-public class EntryValueUITable extends TableLayout implements IoTUIController.IoTUIControllerListener{
+public class EntryValueUITable extends TableLayout implements IoTUIController.IoTUIControllerListener {
     public static final int ADD_ROW = 0;
     public static final int UPDATE_ROW = 1;
     private HashMap<String, EntryRow> rows;
@@ -44,7 +40,7 @@ public class EntryValueUITable extends TableLayout implements IoTUIController.Io
 
                 switch (inputMessage.what) {
                     case EntryValueUITable.ADD_ROW:
-                        addRow(entry.getKey(),controllerFromEntry(entry));
+                        addRow(entry.getKey(), controllerFromEntry(entry));
                         break;
                     case EntryValueUITable.UPDATE_ROW:
                         Log.d("TABLE", "Updating Row: " + entry.getKey());
@@ -56,35 +52,9 @@ public class EntryValueUITable extends TableLayout implements IoTUIController.Io
 
     }
 
-    private IoTUIController controllerFromEntry(IoTSubscriptionEntry entry)
-    {
-        IoTUIController controller = null;
-        switch (entry.getDescription().type) {
-        case INT:
-            controller =
-                    new IoTSubscriptionEntryIntegerController(getContext(), entry);
-            break;
-        case CHAR:
-            break;
-        case STRING:
-            controller =
-                    new IoTSubscriptionEntryStringController(getContext(), entry);
-            break;
-        case BOOLEAN:
-            controller =
-                    new IoTSubscriptionEntryBooleanController(getContext(), entry);
-            break;
-
-        case ENUM:
-            controller =
-                    new IoTSubscriptionEntryEnumController(getContext(),entry);
-            break;
-        case BYTE_PTR:
-            controller =
-                    new IoTSubscriptionEntryStringController(getContext(), entry);
-            break;
-        }
-        return controller;
+    private IoTUIController controllerFromEntry(IoTSubscriptionEntry entry) {
+        UIControllerFactory factory = new UIControllerFactory();
+        return factory.getController(getContext(), entry);
     }
 
     public void handleUpdate(int state, IoTSubscriptionEntry e) {
@@ -109,23 +79,23 @@ public class EntryValueUITable extends TableLayout implements IoTUIController.Io
             this.handleUpdate(ADD_ROW, entry);
 
         }
-            this.handleUpdate(UPDATE_ROW, entry);
+        this.handleUpdate(UPDATE_ROW, entry);
     }
 
     public void addRow(String key, IoTUIController controller) {
-        EntryRow row = new EntryRow(getContext(), key, controller);
-        IoTVariablesBase.getInstance().addSubscriber(controller);
 
-        Log.d("TABLE", "Adding Row: " + key);
+        IoTVariablesBase.getInstance().addSubscriber(controller);
+        controller.setListener(this);
+
+        EntryRow row = new EntryRow(getContext(), key, controller);
         rows.put(key, row);
         this.addView(row);
 
-        controller.setListener(this);
     }
 
     @Override
     public void onUIDrawRequest(IoTUIController controller) {
-        if(rows.get(controller.getEntry().getKey()) != null)
+        if (rows.get(controller.getEntry().getKey()) != null)
             updateRow(controller.getEntry());
     }
 }

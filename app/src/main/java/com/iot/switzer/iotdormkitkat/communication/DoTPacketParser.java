@@ -6,8 +6,7 @@ package com.iot.switzer.iotdormkitkat.communication;
 
 public class DoTPacketParser implements DoTParser {
 
-    public DoTPacket parse(byte[] data)
-    {
+    public DoTPacket parse(byte[] data) {
         DoTPacket packet = null;
         switch (data[0] / 16) {
             case DoTPacket.HEARTBEAT_HEADER:

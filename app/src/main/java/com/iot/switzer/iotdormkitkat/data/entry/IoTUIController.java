@@ -5,8 +5,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
-import com.iot.switzer.iotdormkitkat.data.SubscriptionDescription;
-import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,19 +17,21 @@ public abstract class IoTUIController implements IoTSubscriber {
     private Context context;
     private IoTUIControllerListener listener = null;
 
-    public IoTUIController(Context context,IoTSubscriptionEntry entry)
-    {
+    public IoTUIController(Context context, IoTSubscriptionEntry entry) {
         this.entry = entry;
         this.context = context;
     }
+
     public abstract void postValue();
+
     public abstract View getView();
+
     public abstract void onValueUpdate(IoTSubscriptionEntry e);
 
-    protected Context getContext()
-    {
-        return  context;
+    protected Context getContext() {
+        return context;
     }
+
     public boolean enable() {
         if (!entry.isLocked()) {
             lockEntry();
@@ -42,46 +42,38 @@ public abstract class IoTUIController implements IoTSubscriber {
         }
 
         Toast.makeText(getContext(), entry.getKey() + " is Locked!", Toast.LENGTH_SHORT).show();
-        return  false;
+        return false;
     }
 
     public boolean disable() {
-            unlockEntry();
-            disableView();
-            return true;
+        unlockEntry();
+        disableView();
+        return true;
     }
 
-    private void lockEntry()
-    {
+    private void lockEntry() {
         entry.lock();
     }
 
-    private void unlockEntry()
-    {
+    private void unlockEntry() {
         entry.unlock();
     }
-    private void disableView()
-    {
+
+    private void disableView() {
         getView().setEnabled(false);
 
     }
+
     private void enableView() {
         getView().setEnabled(true);
 
     }
 
-    public IoTSubscriptionEntry getEntry()
-    {
-        return  entry;
+    public IoTSubscriptionEntry getEntry() {
+        return entry;
     }
 
-    public interface IoTUIControllerListener
-    {
-        void onUIDrawRequest(IoTUIController controller);
-    }
-
-    public void setListener(IoTUIControllerListener listener)
-    {
+    public void setListener(IoTUIControllerListener listener) {
         this.listener = listener;
     }
 
@@ -91,17 +83,21 @@ public abstract class IoTUIController implements IoTSubscriber {
         signalDrawRequest();
     }
 
-    private void signalDrawRequest()
-    {
-        if(listener != null) {
+    private void signalDrawRequest() {
+        if (listener != null) {
             listener.onUIDrawRequest(this);
         }
     }
+
     @Override
     public List<SubscriptionDescription> getSubscriptions() {
         ArrayList<SubscriptionDescription> d = new ArrayList<>();
         d.add(getEntry().getDescription());
         return d;
 
+    }
+
+    public interface IoTUIControllerListener {
+        void onUIDrawRequest(IoTUIController controller);
     }
 }
