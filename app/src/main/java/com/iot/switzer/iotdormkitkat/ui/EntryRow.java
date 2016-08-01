@@ -51,20 +51,22 @@ public class EntryRow extends TableRow implements View.OnLongClickListener {
     }
 
     private void enableUserControls() {
-        userControlled = true;
-        controller.enable();
+        if(controller.enable())
+        {
+            userControlled = true;
+        }
     }
 
     private void disableUserControls() {
-        userControlled = false;
-        Toast.makeText(getContext(), title.getText() + ": Restored Network Control", Toast.LENGTH_SHORT).show();
-        controller.disable();
+        if(controller.disable()) {
+            userControlled = false;
+            Toast.makeText(getContext(), title.getText() + ": Restored Network Control", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     public boolean onLongClick(View v) {
         if (userControlled) {
-
             disableUserControls();
         } else {
             enableUserControls();

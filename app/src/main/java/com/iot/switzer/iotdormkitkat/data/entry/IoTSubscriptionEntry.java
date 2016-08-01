@@ -192,8 +192,25 @@ public class IoTSubscriptionEntry {
     }
 
     public void update(SubscriptionDescription d) {
-        if (d.type != getDescription().type) {
-            getDescription().type = d.type;
+        updateType(d.type);
+        updateHighLimit(d.highLimit);
+        updateLowLimit(d.lowLimit);
+    }
+
+
+    private void updateHighLimit(int h)
+    {
+        if(h != getDescription().highLimit)
+        {
+            getDescription().highLimit = h;
+        }
+    }
+
+    private void updateLowLimit(int l)
+    {
+        if(l != getDescription().lowLimit)
+        {
+            getDescription().highLimit = l;
         }
     }
 

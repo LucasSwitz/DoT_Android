@@ -35,12 +35,11 @@ public class IoTPresetButton extends IoTPresetModel{
     public void enablePreset()
     {
         for (Preset.PresetEntry e : preset) {
-            e.entry.setVal(e.value);
-            e.entry.lock();
+                e.entry.setVal(e.value);
+                e.entry.lock();
         }
         presetEnabled = true;
         setActiveState(true);
-
     }
 
     public void disablePreset()

@@ -83,9 +83,11 @@ public class IoTManager implements IoTDeviceListener {
 
     public void searchForDevices(Activity a)
     {
-        startDiscoveryService(a);
-        changeState(STATE_DISCOVERY);
-        startDiscoveryProgressUpdate();
+        if(currentState != STATE_DISCOVERY) {
+            startDiscoveryService(a);
+            changeState(STATE_DISCOVERY);
+            startDiscoveryProgressUpdate();
+        }
     }
 
     private void startDiscoveryProgressUpdate()

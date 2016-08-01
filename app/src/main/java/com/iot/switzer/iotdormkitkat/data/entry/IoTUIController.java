@@ -32,19 +32,42 @@ public abstract class IoTUIController implements IoTSubscriber {
     {
         return  context;
     }
-    public void enable() {
+    public boolean enable() {
         if (!entry.isLocked()) {
+            lockEntry();
+            enableView();
+
             Toast.makeText(getContext(), entry.getKey() + ": Enabled User Control", Toast.LENGTH_SHORT).show();
-            entry.lock();
-            getView().setEnabled(true);
-        } else {
-            Toast.makeText(getContext(), entry.getKey() + " is Locked!", Toast.LENGTH_SHORT).show();
+            return true;
         }
+
+        Toast.makeText(getContext(), entry.getKey() + " is Locked!", Toast.LENGTH_SHORT).show();
+        return  false;
     }
 
-    public void disable() {
+    public boolean disable() {
+            unlockEntry();
+            disableView();
+            return true;
+    }
+
+    private void lockEntry()
+    {
+        entry.lock();
+    }
+
+    private void unlockEntry()
+    {
         entry.unlock();
+    }
+    private void disableView()
+    {
         getView().setEnabled(false);
+
+    }
+    private void enableView() {
+        getView().setEnabled(true);
+
     }
 
     public IoTSubscriptionEntry getEntry()
