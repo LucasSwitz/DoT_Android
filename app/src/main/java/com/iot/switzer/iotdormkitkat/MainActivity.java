@@ -111,38 +111,23 @@ public class MainActivity extends AppCompatActivity implements IoTNetworkListene
 
         setContentView(R.layout.activity_main);
 
-        initToolbar();
-        initPresetScrollView();
-        initDeviceUITable();
-        initStatusBlock();
-        loadPresets();
-        startDiscoveryService();
-    }
-
-    private void initToolbar()
-    {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-    }
 
-    private void initPresetScrollView()
-    {
         presetScrollView = (ViewGroup) findViewById(R.id.presetScrollView).findViewById(R.id.presetLinearLayout);
         bg = new PresetButtonGroup(presetScrollView.getContext());
-    }
+        loadPresets();
 
-    private void initDeviceUITable()
-    {
         ViewGroup layout = (ViewGroup) findViewById(R.id.main_layout);
         ScrollView tableScrollView = (ScrollView) layout.findViewById(R.id.tableScrollView);
+
         table = new DeviceUITable(tableScrollView.getContext(), this);
         IoTManager.getInstance().addListener(this);
         tableScrollView.addView(table);
-    }
 
-    private void initStatusBlock()
-    {
         statusBlock = (ViewGroup) findViewById(R.id.status_block);
+
+        //startDiscoveryService();
     }
 
     private void startDiscoveryService() {

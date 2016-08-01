@@ -91,6 +91,7 @@ public class PresetButtonGroup implements Button.OnClickListener,
 
         putDataMapReq.getDataMap().putBoolean(toKeySyntax(name),enabled);
 
+
         PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
         PendingResult<DataApi.DataItemResult> pendingResult =
                 Wearable.DataApi.putDataItem(googleApiClient, putDataReq);

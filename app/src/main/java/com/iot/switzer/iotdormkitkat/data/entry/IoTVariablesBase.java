@@ -77,10 +77,14 @@ public class IoTVariablesBase extends IoTTableModel implements IoTEntryListener 
                 addEntry(new IoTSubscriptionEntry(d, new byte[]{DEFAULT_VALUE}));
             } else {
                 /**
-                 * If a subscriber further describes and entry  past the default, update the entry.
+                 * If a subscriber further describes and entry type past the default
+                 * (BYTE_PTR), update the entry.
                  */
+                if ((get(d.key).getDescription().type == SubscriptionDescription.SubscriptionType.BYTE_PTR) &&
+                        d.type != SubscriptionDescription.SubscriptionType.BYTE_PTR) {
                     get(d.key).update(d);
                     updateObservers(d.key);
+                }
             }
             /**
              * Update the subscriber with the current value of the entry
