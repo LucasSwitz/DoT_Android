@@ -18,6 +18,13 @@ public class DoTPacketParser implements DoTParser {
                         break;
                 }
                 break;
+            case DoTPacket.HANDSHAKE_HEADER:
+                switch (data[0])
+                {
+                    case DoTPacket.HANDSHAKE_RETURN:
+                        packet = new DoTHandshakeParser().parse(data);
+                        break;
+                }
         }
         return packet;
     }

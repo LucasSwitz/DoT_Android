@@ -1,7 +1,7 @@
 package com.iot.switzer.iotdormkitkat.devices;
 
 import com.iot.switzer.iotdormkitkat.communication.DoTPacket;
-import com.iot.switzer.iotdormkitkat.communication.DoTSubscriptionUpdatePacketBuilder;
+import com.iot.switzer.iotdormkitkat.communication.DoTSubscriptionUpdatePacket;
 import com.iot.switzer.iotdormkitkat.data.IoTContributor;
 import com.iot.switzer.iotdormkitkat.data.IoTContributorListener;
 import com.iot.switzer.iotdormkitkat.data.IoTSubscriber;
@@ -38,8 +38,8 @@ public abstract class IoTDeviceController implements IoTSubscriber, IoTContribut
 
     protected void writeSubscriptionUpdateToDevice(String key, byte[] val) throws IOException {
 
-        DoTSubscriptionUpdatePacketBuilder builder = new DoTSubscriptionUpdatePacketBuilder();
-        DoTPacket packet = builder.build(key, val);
+        DoTSubscriptionUpdatePacket packet = new DoTSubscriptionUpdatePacket(key,val);
+        packet.build();
         write(packet);
     }
 

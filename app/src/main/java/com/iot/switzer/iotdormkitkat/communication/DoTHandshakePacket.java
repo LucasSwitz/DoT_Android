@@ -1,5 +1,6 @@
 package com.iot.switzer.iotdormkitkat.communication;
 
+import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
 import com.iot.switzer.iotdormkitkat.data.entry.SubscriptionDescription;
 
 import java.util.ArrayList;
@@ -12,6 +13,13 @@ public class DoTHandshakePacket extends DoTPacket {
     String token;
     int heartbeatInterval;
     ArrayList<SubscriptionDescription> subscriptionDescriptions;
+
+    @Override
+    protected void _build() {
+        /*
+        * TODO: Implement this if ever have need of an Android network device.
+        * */
+    }
 
     public DoTHandshakePacket() {
         subscriptionDescriptions = new ArrayList<>();

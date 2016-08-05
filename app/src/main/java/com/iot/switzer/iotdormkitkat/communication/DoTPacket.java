@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Created by Lucas on 7/31/2016.
  */
-public class DoTPacket {
+public abstract class DoTPacket {
     public static final byte HEARTBEAT_HEADER = 0;
     public static final byte HEARTBEAT_REQUEST = 0x01;
     public static final byte HEARTBEAT_RETURN = 0x02;
@@ -21,6 +21,8 @@ public class DoTPacket {
     public static final byte PACKET_DELIM = (char) 13;
     ArrayList<Byte> packet;
 
+
+    abstract protected void _build();
     public DoTPacket() {
         packet = new ArrayList<>();
     }
@@ -35,11 +37,21 @@ public class DoTPacket {
         return out;
     }
 
+    public void appendEelement(byte[] data) {
+        appendBytes(data);
+    }
+
+    public void build() {
+
+
+        close();
+    }
+
     public final byte getHeader() {
         return packet.get(0);
     }
 
-    protected void setHeader(byte header) {
+    public void setHeader(byte header) {
         packet.add(0, header);
     }
 

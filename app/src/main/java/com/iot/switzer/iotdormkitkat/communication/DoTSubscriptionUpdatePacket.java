@@ -7,6 +7,7 @@ import com.iot.switzer.iotdormkitkat.data.entry.IoTSubscriptionEntry;
  */
 public class DoTSubscriptionUpdatePacket extends DoTPacket {
     private IoTSubscriptionEntry entry;
+    private DoTPacket packet;
 
     public DoTSubscriptionUpdatePacket(String key, byte[] value) {
         entry = new IoTSubscriptionEntry(key, value);
@@ -14,5 +15,11 @@ public class DoTSubscriptionUpdatePacket extends DoTPacket {
 
     public IoTSubscriptionEntry getEntry() {
         return entry;
+    }
+    @Override
+    protected void _build() {
+        setHeader(DoTPacket.SUBSCRIPTION_UPDATE);
+        appendEelement(entry.getKey().getBytes());
+        appendEelement(entry.getVal());
     }
 }
