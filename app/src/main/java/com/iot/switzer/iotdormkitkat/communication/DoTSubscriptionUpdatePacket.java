@@ -20,6 +20,7 @@ public class DoTSubscriptionUpdatePacket extends DoTPacket {
     protected void _build() {
         setHeader(DoTPacket.SUBSCRIPTION_UPDATE);
         appendEelement(entry.getKey().getBytes());
+        delim();
         appendEelement(entry.getVal());
     }
 }

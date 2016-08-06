@@ -339,6 +339,7 @@ class HandshakeService implements Runnable, HandshakeListener {
     @Override
     public void onHandshakeData(byte[] data) {
         DoTPacketParser packetParser = new DoTPacketParser();
+        Log.d("PACKET","Header:"+String.valueOf(data[0]));
         DoTHandshakePacket packet = (DoTHandshakePacket) packetParser.parse(data);
 
         if(listener != null)

@@ -1,5 +1,7 @@
 package com.iot.switzer.iotdormkitkat.communication;
 
+import android.util.Log;
+
 /**
  * Created by Lucas on 7/31/2016.
  */

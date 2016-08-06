@@ -42,8 +42,7 @@ public abstract class DoTPacket {
     }
 
     public void build() {
-
-
+        _build();
         close();
     }
 
@@ -70,6 +69,7 @@ public abstract class DoTPacket {
     }
 
     protected void close() {
+        packet.add((byte)(char)10);
         packet.add(PACKET_DELIM);
     }
 
